@@ -1,0 +1,42 @@
+package GUI;
+import javax.swing.*;  // ✅ Importa Swing
+import java.awt.*;     // Para layouts y diseño
+
+public class LoginGUI extends JFrame { 
+	  // Constructor
+    public LoginGUI() {
+        setTitle("Login - Registro de Visitas");
+        setSize(400, 250);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Panel principal
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+
+        JLabel userLabel = new JLabel("Usuario:");
+        JTextField userText = new JTextField();
+
+        JLabel passLabel = new JLabel("Contraseña:");
+        JPasswordField passText = new JPasswordField();
+
+        JButton loginButton = new JButton("Ingresar");
+
+        // Añadir al panel
+        panel.add(userLabel);
+        panel.add(userText);
+        panel.add(passLabel);
+        panel.add(passText);
+        panel.add(new JLabel()); // espacio vacío
+        panel.add(loginButton);
+
+        add(panel); // se añade al frame
+    }
+
+    // Método main para ejecutar
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new LoginGUI().setVisible(true);
+        });
+    }
+
+}
