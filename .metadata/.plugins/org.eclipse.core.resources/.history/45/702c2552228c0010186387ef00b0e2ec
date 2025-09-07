@@ -5,7 +5,8 @@ import Modelado.Motorizado;
 import repositorio.InMemoryDatabase;
 
 public class ControladorMotorizado {
-		  public Motorizado registrarMotorizado(String dni, String nombres, String apellidos,
+	  //prueba de modificacion
+	  public Motorizado registrarMotorizado(String dni, String nombres, String apellidos,
               String celularTrabajo, String placaMoto,
               String marcaMoto, String modeloMoto,
               String breveteCategoria, String vencBrevete,
