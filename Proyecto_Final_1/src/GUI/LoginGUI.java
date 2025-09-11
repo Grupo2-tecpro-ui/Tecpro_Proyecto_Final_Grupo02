@@ -4,14 +4,13 @@ import java.awt.*;
 
 public class LoginGUI extends JFrame { 
 	private static final long serialVersionUID = 1L;
-	  // Constructor
-    public LoginGUI() {
+	   public LoginGUI() {
         setTitle("Login - Registro de Visitas");
         setSize(400, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Panel principal
+      
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
 
         JLabel userLabel = new JLabel("Usuario:");
