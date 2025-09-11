@@ -10,7 +10,7 @@ public class RegistroMotorizadoFrame  extends JFrame {
 	
 	    ControladorMotorizado ctrl = new ControladorMotorizado();
 
-	    // Lanzamos eventos de Swing
+	
 	    SwingUtilities.invokeLater(() -> {
 	        RegistroMotorizadoFrame frame = new RegistroMotorizadoFrame(ctrl);
 	        frame.setVisible(true);
@@ -82,7 +82,7 @@ public class RegistroMotorizadoFrame  extends JFrame {
 	        });
 
 	        btnLimpiar.addActionListener(new java.awt.event.ActionListener() {
-	            @Override
+	            @Override //se sobre escribe
 	            public void actionPerformed(java.awt.event.ActionEvent e) {
 	                limpiar();
 	            }

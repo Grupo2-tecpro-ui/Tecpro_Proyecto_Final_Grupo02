@@ -1,0 +1,137 @@
+package GUI;
+
+import javax.swing.*;
+import java.awt.*;
+import Controlador.ControladorMotorizado;
+import Modelado.Motorizado;
+
+public class RegistroMotorizadoFrame  extends JFrame {
+	public static void main(String[] args) {
+	
+	    ControladorMotorizado ctrl = new ControladorMotorizado();
+
+	    // Lanzamos eventos de Swing
+	    SwingUtilities.invokeLater(() -> {
+	        RegistroMotorizadoFrame frame = new RegistroMotorizadoFrame(ctrl);
+	        frame.setVisible(true);
+	    });
+	}
+	private static final long serialVersionUID = 1L;
+
+	  private final JTextField txtDni = new JTextField();
+	    private final JTextField txtNombres = new JTextField();
+	    private final JTextField txtApellidos = new JTextField();
+	    private final JTextField txtCelular = new JTextField();
+	    private final JTextField txtPlaca = new JTextField();
+	    private final JTextField txtMarca = new JTextField();
+	    private final JTextField txtModelo = new JTextField();
+	    private final JTextField txtBrevete = new JTextField();
+	    private final JTextField txtVencBrevete = new JTextField("2026-12-31");
+	    private final JCheckBox chkSoat = new JCheckBox("SOAT vigente");
+	    private final JComboBox<String> cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+	    private final JTextField txtFechaIngreso = new JTextField("2025-01-01");
+	    private final JComboBox<String> cboContrato = new JComboBox<>(new String[]{"Express", "Full time"});
+	    private final JTextField txtIdSede = new JTextField("1");
+
+	    private final ControladorMotorizado controller;
+
+	    public RegistroMotorizadoFrame(ControladorMotorizado controller) {
+	        this.controller = controller;
+	        initUI();
+	    }
+
+	    private void initUI() {
+	        setTitle("Registro de Motorizado");
+	        setSize(520, 520);
+	        setLocationRelativeTo(null);
+	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+	        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
+	        form.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+	        form.add(new JLabel("DNI:")); form.add(txtDni);
+	        form.add(new JLabel("Nombres:")); form.add(txtNombres);
+	        form.add(new JLabel("Apellidos:")); form.add(txtApellidos);
+	        form.add(new JLabel("Celular trabajo:")); form.add(txtCelular);
+	        form.add(new JLabel("Placa moto:")); form.add(txtPlaca);
+	        form.add(new JLabel("Marca moto:")); form.add(txtMarca);
+	        form.add(new JLabel("Modelo moto:")); form.add(txtModelo);
+	        form.add(new JLabel("Brevete categoría:")); form.add(txtBrevete);
+	        form.add(new JLabel("Venc. brevete (YYYY-MM-DD):")); form.add(txtVencBrevete);
+	        form.add(new JLabel("SOAT:")); form.add(chkSoat);
+	        form.add(new JLabel("Estado:")); form.add(cboEstado);
+	        form.add(new JLabel("Fecha ingreso (YYYY-MM-DD):")); form.add(txtFechaIngreso);
+	        form.add(new JLabel("Tipo contrato:")); form.add(cboContrato);
+	        form.add(new JLabel("ID Sede:")); form.add(txtIdSede);
+
+	        JButton btnGuardar = new JButton("Guardar");
+	        JButton btnLimpiar = new JButton("Limpiar");
+
+	        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+	        acciones.add(btnLimpiar);
+	        acciones.add(btnGuardar);
+
+	        add(form, BorderLayout.CENTER);
+	        add(acciones, BorderLayout.SOUTH);
+
+	        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+	            @Override
+	            public void actionPerformed(java.awt.event.ActionEvent e) {
+	                guardar();
+	            }
+	        });
+
+	        btnLimpiar.addActionListener(new java.awt.event.ActionListener() {
+	            @Override
+	            public void actionPerformed(java.awt.event.ActionEvent e) {
+	                limpiar();
+	            }
+	        });
+	    }
+
+	    private void guardar() {
+	        try {
+	            String dni = txtDni.getText().trim();
+	            String nombres = txtNombres.getText().trim();
+	            String apellidos = txtApellidos.getText().trim();
+	            String celular = txtCelular.getText().trim();
+	            String placa = txtPlaca.getText().trim();
+	            String marca = txtMarca.getText().trim();
+	            String modelo = txtModelo.getText().trim();
+	            String brevete = txtBrevete.getText().trim();
+	            String vencBrevete = txtVencBrevete.getText().trim();
+	            boolean soat = chkSoat.isSelected();
+	            String estado = (String) cboEstado.getSelectedItem();
+	            String fechaIngreso = txtFechaIngreso.getText().trim();
+	            String contrato = (String) cboContrato.getSelectedItem();
+	            int idSede = Integer.parseInt(txtIdSede.getText().trim());
+
+	            Motorizado m = controller.registrarMotorizado(
+	                    dni, nombres, apellidos, celular, placa, marca, modelo,
+	                    brevete, vencBrevete, soat, estado, fechaIngreso, contrato, idSede
+	            );
+
+	            JOptionPane.showMessageDialog(this, "Motorizado guardado: " + m, "OK", JOptionPane.INFORMATION_MESSAGE);
+	            dispose();
+	        } catch (Exception ex) {
+	            JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        }
+	    }
+
+	    private void limpiar() {
+	        txtDni.setText("");
+	        txtNombres.setText("");
+	        txtApellidos.setText("");
+	        txtCelular.setText("");
+	        txtPlaca.setText("");
+	        txtMarca.setText("");
+	        txtModelo.setText("");
+	        txtBrevete.setText("");
+	        txtVencBrevete.setText("2026-12-31");
+	        chkSoat.setSelected(false);
+	        cboEstado.setSelectedIndex(0);
+	        txtFechaIngreso.setText("2025-01-01");
+	        cboContrato.setSelectedIndex(0);
+	        txtIdSede.setText("1");
+	    }
+}
