@@ -4,134 +4,298 @@ import javax.swing.*;
 import java.awt.*;
 import Controlador.ControladorMotorizado;
 import Modelado.Motorizado;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
-public class RegistroMotorizadoFrame  extends JFrame {
-	public static void main(String[] args) {
-	
-	    ControladorMotorizado ctrl = new ControladorMotorizado();
+import java.text.SimpleDateFormat;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
+public class RegistroMotorizadoFrame  extends JFrame implements ActionListener {
 	
-	    SwingUtilities.invokeLater(() -> {
-	        RegistroMotorizadoFrame frame = new RegistroMotorizadoFrame(ctrl);
-	        frame.setVisible(true);
-	    });
-	}
 	private static final long serialVersionUID = 1L;
+	private JTextField txtDni, txtNombres, txtApellidos, txtCelular, txtPlaca, txtMarca, txtModelo;
+    private JTextField txtVencBrevete, txtFechaIngreso, txtSede, txtTarjetas;
+    private JCheckBox chkSoat;
+    private JCheckBox chkDiaRuta;
+   private JButton btnGuardar, btnLimpiar;
+ 
+   private JSpinner spinnerFechaTarjetas;
+ 
+    private JComboBox<String> cboEstado; 
+    private JTextField txtBrevete;   
+    private JComboBox<String>  cboContrato;
 
-	  private final JTextField txtDni = new JTextField();
-	    private final JTextField txtNombres = new JTextField();
-	    private final JTextField txtApellidos = new JTextField();
-	    private final JTextField txtCelular = new JTextField();
-	    private final JTextField txtPlaca = new JTextField();
-	    private final JTextField txtMarca = new JTextField();
-	    private final JTextField txtModelo = new JTextField();
-	    private final JTextField txtBrevete = new JTextField();
-	    private final JTextField txtVencBrevete = new JTextField("2026-12-31");
-	    private final JCheckBox chkSoat = new JCheckBox("SOAT vigente");
-	    private final JComboBox<String> cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
-	    private final JTextField txtFechaIngreso = new JTextField("2025-01-01");
-	    private final JComboBox<String> cboContrato = new JComboBox<>(new String[]{"Express", "Full time"});
-	    private final JTextField txtIdSede = new JTextField("1");
+    private ControladorMotorizado controlador;
+    private JButton btnEnlistar;
+    private JLabel lblRegistraAlMotorizado;
 
-	    private final ControladorMotorizado controller;
+ 
+    
+    public RegistroMotorizadoFrame(ControladorMotorizado controlador) {
+    	
+        this.controlador = controlador;
 
-	    public RegistroMotorizadoFrame(ControladorMotorizado controller) {
-	        this.controller = controller;
-	        initUI();
-	    }
+        setTitle("Registro de Motorizado");			
+        setSize(600, 720);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-	    private void initUI() {
-	        setTitle("Registro de Motorizado");
-	        setSize(520, 520);
-	        setLocationRelativeTo(null);
-	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-	        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
-	        form.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        // Campos iniciales
+        JLabel label = new JLabel("DNI:");
+        label.setBounds(79, 49, 168, 23);
+        panel.add(label);
+        txtDni = new JTextField();
+        txtDni.setBounds(257, 49, 237, 23);
+        panel.add(txtDni);
 
-	        form.add(new JLabel("DNI:")); form.add(txtDni);
-	        form.add(new JLabel("Nombres:")); form.add(txtNombres);
-	        form.add(new JLabel("Apellidos:")); form.add(txtApellidos);
-	        form.add(new JLabel("Celular trabajo:")); form.add(txtCelular);
-	        form.add(new JLabel("Placa moto:")); form.add(txtPlaca);
-	        form.add(new JLabel("Marca moto:")); form.add(txtMarca);
-	        form.add(new JLabel("Modelo moto:")); form.add(txtModelo);
-	        form.add(new JLabel("Brevete categoría:")); form.add(txtBrevete);
-	        form.add(new JLabel("Venc. brevete (YYYY-MM-DD):")); form.add(txtVencBrevete);
-	        form.add(new JLabel("SOAT:")); form.add(chkSoat);
-	        form.add(new JLabel("Estado:")); form.add(cboEstado);
-	        form.add(new JLabel("Fecha ingreso (YYYY-MM-DD):")); form.add(txtFechaIngreso);
-	        form.add(new JLabel("Tipo contrato:")); form.add(cboContrato);
-	        form.add(new JLabel("ID Sede:")); form.add(txtIdSede);
+        JLabel label_1 = new JLabel("Nombres:");
+        label_1.setBounds(79, 82, 168, 23);
+        panel.add(label_1);
+        txtNombres = new JTextField();
+        txtNombres.setBounds(257, 82, 237, 23);
+        panel.add(txtNombres);
 
-	        JButton btnGuardar = new JButton("Guardar");
-	        JButton btnLimpiar = new JButton("Limpiar");
+        JLabel label_2 = new JLabel("Apellidos:");
+        label_2.setBounds(79, 116, 190, 23);
+        panel.add(label_2);
+        txtApellidos = new JTextField();
+        txtApellidos.setBounds(257, 115, 237, 23);
+        panel.add(txtApellidos);
 
-	        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-	        acciones.add(btnLimpiar);
-	        acciones.add(btnGuardar);
+        JLabel label_3 = new JLabel("Celular trabajo:");
+        label_3.setBounds(79, 150, 168, 23);
+        panel.add(label_3);
+        txtCelular = new JTextField();
+        txtCelular.setBounds(257, 148, 237, 23);
+        panel.add(txtCelular);
 
-	        add(form, BorderLayout.CENTER);
-	        add(acciones, BorderLayout.SOUTH);
+        JLabel label_4 = new JLabel("Placa moto:");
+        label_4.setBounds(79, 184, 190, 23);
+        panel.add(label_4);
+        txtPlaca = new JTextField();
+        txtPlaca.setBounds(257, 181, 237, 23);
+        panel.add(txtPlaca);
 
-	        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
-	            @Override
-	            public void actionPerformed(java.awt.event.ActionEvent e) {
-	                guardar();
-	            }
-	        });
+        JLabel label_5 = new JLabel("Marca moto:");
+        label_5.setBounds(79, 218, 190, 23);
+        panel.add(label_5);
+        txtMarca = new JTextField();
+        txtMarca.setBounds(257, 214, 237, 23);
+        panel.add(txtMarca);
 
-	        btnLimpiar.addActionListener(new java.awt.event.ActionListener() {
-	            @Override //se sobre escribe
-	            public void actionPerformed(java.awt.event.ActionEvent e) {
-	                limpiar();
-	            }
-	        });
-	    }
+        JLabel label_6 = new JLabel("Modelo moto:");
+        label_6.setBounds(79, 248, 219, 23);
+        panel.add(label_6);
+        txtModelo = new JTextField();
+        txtModelo.setBounds(257, 247, 237, 23);
+        panel.add(txtModelo);
 
-	    private void guardar() {
-	        try {
-	            String dni = txtDni.getText().trim();
-	            String nombres = txtNombres.getText().trim();
-	            String apellidos = txtApellidos.getText().trim();
-	            String celular = txtCelular.getText().trim();
-	            String placa = txtPlaca.getText().trim();
-	            String marca = txtMarca.getText().trim();
-	            String modelo = txtModelo.getText().trim();
-	            String brevete = txtBrevete.getText().trim();
-	            String vencBrevete = txtVencBrevete.getText().trim();
-	            boolean soat = chkSoat.isSelected();
-	            String estado = (String) cboEstado.getSelectedItem();
-	            String fechaIngreso = txtFechaIngreso.getText().trim();
-	            String contrato = (String) cboContrato.getSelectedItem();
-	            int idSede = Integer.parseInt(txtIdSede.getText().trim());
+        // Nuevos campos
+        JLabel label_7 = new JLabel("Brevete categoría:");
+        label_7.setBounds(79, 280, 196, 23);
+        panel.add(label_7);
+        txtBrevete = new JTextField();
+        txtBrevete.setBounds(257, 280, 237, 23);
+        panel.add(txtBrevete);
 
-	            Motorizado m = controller.registrarMotorizado(
-	                    dni, nombres, apellidos, celular, placa, marca, modelo,
-	                    brevete, vencBrevete, soat, estado, fechaIngreso, contrato, idSede
-	            );
+        JLabel label_8 = new JLabel("Venc. brevete (YYYY-MM-DD):");
+        label_8.setBounds(79, 313, 168, 23);
+        panel.add(label_8);
+        txtVencBrevete = new JTextField("2026-12-31");
+        txtVencBrevete.setBounds(257, 313, 237, 23);
+        panel.add(txtVencBrevete);
 
-	            JOptionPane.showMessageDialog(this, "Motorizado guardado: " + m, "OK", JOptionPane.INFORMATION_MESSAGE);
-	            dispose();
-	        } catch (Exception ex) {
-	            JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	        }
-	    }
+        JLabel label_9 = new JLabel("SOAT:");
+        label_9.setBounds(79, 346, 161, 23);
+        panel.add(label_9);
+        chkSoat = new JCheckBox("SOAT vigente");
+        chkSoat.setBounds(257, 346, 237, 23);
+        panel.add(chkSoat);
 
-	    private void limpiar() {
-	        txtDni.setText("");
-	        txtNombres.setText("");
-	        txtApellidos.setText("");
-	        txtCelular.setText("");
-	        txtPlaca.setText("");
-	        txtMarca.setText("");
-	        txtModelo.setText("");
-	        txtBrevete.setText("");
-	        txtVencBrevete.setText("2026-12-31");
-	        chkSoat.setSelected(false);
-	        cboEstado.setSelectedIndex(0);
-	        txtFechaIngreso.setText("2025-01-01");
-	        cboContrato.setSelectedIndex(0);
-	        txtIdSede.setText("1");
-	    }
-}
+        JLabel label_10 = new JLabel("Estado:");
+        label_10.setBounds(79, 379, 178, 23);
+        panel.add(label_10);
+        cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+        cboEstado.setBounds(257, 379, 237, 23);
+        panel.add(cboEstado);
+
+        JLabel label_11 = new JLabel("Fecha ingreso (YYYY-MM-DD):");
+        label_11.setBounds(79, 412, 190, 23);
+        panel.add(label_11);
+        txtFechaIngreso = new JTextField("2025-01-01");
+        txtFechaIngreso.setBounds(257, 412, 237, 23);
+        panel.add(txtFechaIngreso);
+
+        JLabel label_12 = new JLabel("Tipo contrato:");
+        label_12.setBounds(79, 445, 168, 23);
+        panel.add(label_12);
+        cboContrato = new JComboBox<>(new String[]{"Express", "Tiempo completo", "Medio tiempo"});
+        cboContrato.setBounds(257, 445, 237, 23);
+        panel.add(cboContrato);
+
+        JLabel label_13 = new JLabel("ID Sede:");
+        label_13.setBounds(79, 479, 183, 23);
+        panel.add(label_13);
+        txtSede = new JTextField("1");
+        txtSede.setBounds(257, 478, 237, 23);
+        panel.add(txtSede);
+
+        JLabel label_14 = new JLabel("Cantidad de tarjetas:");
+        label_14.setBounds(79, 513, 183, 23);
+        panel.add(label_14);
+        txtTarjetas = new JTextField("0");
+        txtTarjetas.setBounds(257, 512, 237, 23);
+        panel.add(txtTarjetas);
+        
+        chkDiaRuta = new JCheckBox("Ruta del día");
+        chkDiaRuta.setBounds(79, 19, 95, 23);
+        panel.add(chkDiaRuta);
+        
+        JLabel labelFechaTarjetas = new JLabel("Fecha de ruta (YYYY-MM-DD):");
+        labelFechaTarjetas.setBounds(79, 542, 149, 23); // ajustar posiciones según tu layout
+        panel.add(labelFechaTarjetas);
+        
+        SpinnerDateModel modelDate = new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH);
+        spinnerFechaTarjetas = new JSpinner(modelDate);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFechaTarjetas, "yyyy-MM-dd");
+        spinnerFechaTarjetas.setEditor(editor);
+        spinnerFechaTarjetas.setBounds(257, 542, 237, 23);
+        panel.add(spinnerFechaTarjetas);
+        // Botones
+        btnGuardar = new JButton("Guardar (Adicionar al registro)");
+        btnGuardar.setBounds(83, 586, 186, 23);
+        btnLimpiar = new JButton("Limpiar");
+        btnLimpiar.setBounds(304, 586, 190, 23);
+        panel.add(btnGuardar);
+        panel.add(btnLimpiar);
+
+        getContentPane().add(panel);
+        
+        btnEnlistar = new JButton("Reportar");
+        btnEnlistar.addActionListener(this);
+        btnEnlistar.setBounds(181, 631, 186, 23);
+        panel.add(btnEnlistar);
+        
+        lblRegistraAlMotorizado = new JLabel("REGISTRA AL MOTORIZADO");
+        lblRegistraAlMotorizado.setFont(new Font("Tahoma", Font.BOLD, 18));
+        lblRegistraAlMotorizado.setBounds(252, 16, 286, 23);
+        panel.add(lblRegistraAlMotorizado);
+
+        // Eventos
+        btnGuardar.addActionListener(e -> guardar());
+        btnLimpiar.addActionListener(e -> limpiar());
+    }
+
+    private void guardar() {
+        try {
+           
+            String dni = txtDni.getText().trim();
+            if (!dni.matches("\\d{8}")) {
+                JOptionPane.showMessageDialog(this, "DNI inválido: debe contener exactamente 8 dígitos numéricos.");
+                return;
+            }
+            if (repositorio.InMemoryDatabase.existeDni(dni)) {
+                JOptionPane.showMessageDialog(this, "El DNI ya existe. No se permiten duplicados.");
+                return;
+            }
+
+            
+            int tarjetas;
+            try {
+                tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
+                if (tarjetas < 0) {
+                    JOptionPane.showMessageDialog(this, "Cantidad de tarjetas no puede ser negativa.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Cantidad de tarjetas inválida (debe ser número).");
+                return;
+            }
+
+            // parsear idSede
+            int idSede;
+            try {
+                idSede = Integer.parseInt(txtSede.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "ID Sede inválido (debe ser número).");
+                return;
+            }
+
+            // obtener fecha del spinner y formatear a String YYYY-MM-DD
+            java.util.Date fechaUtil = (java.util.Date) spinnerFechaTarjetas.getValue();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            String fechaTarjetasStr = sdf.format(fechaUtil);
+
+            // crear el objeto Motorizado (usa 'dni' validado)
+            Motorizado m = new Motorizado(
+                0,
+                dni,
+                txtNombres.getText().trim(),
+                txtApellidos.getText().trim(),
+                txtCelular.getText().trim(),
+                txtPlaca.getText().trim(),
+                txtMarca.getText().trim(),
+                txtModelo.getText().trim(),
+                txtBrevete.getText().trim(),
+                txtVencBrevete.getText().trim(),
+                chkSoat.isSelected(),
+                (String) cboEstado.getSelectedItem(),
+                txtFechaIngreso.getText().trim(),
+                (String) cboContrato.getSelectedItem(),
+                tarjetas,
+                chkDiaRuta.isSelected(),
+                fechaTarjetasStr,
+                idSede
+            );
+
+            // guardar
+            if (this.controlador != null) {
+                this.controlador.guardarMotorizado(m);
+            } else {
+                new ControladorMotorizado().guardarMotorizado(m);
+            }
+
+            limpiar();
+            JOptionPane.showMessageDialog(this, "Motorizado guardado correctamente.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al guardar motorizado: " + e.getMessage());
+        }
+    }
+    private void limpiar() {
+    	txtDni.setText("");
+    	txtNombres.setText("");
+    	txtApellidos.setText("");
+    	txtCelular.setText("");
+    	txtPlaca.setText("");
+    	txtMarca.setText("");
+    	txtModelo.setText("");
+    	txtBrevete.setText("");
+    	txtVencBrevete.setText("2026-12-31");
+    	chkSoat.setSelected(false);
+    	cboEstado.setSelectedIndex(0);
+    	txtFechaIngreso.setText("2025-01-01");
+    	cboContrato.setSelectedIndex(0);
+    	txtSede.setText("1");
+    	txtTarjetas.setText("0");
+    	chkDiaRuta.setSelected(false);
+    }
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == btnEnlistar) {
+			do_btnEnlistar_actionPerformed(e);
+		}
+	}
+	protected void do_btnEnlistar_actionPerformed(ActionEvent e) {
+		Controlador.ControladorMotorizado ctrl = this.controlador != null ? this.controlador : new ControladorMotorizado();
+	    ListadoMotorizadoFrame listado = new ListadoMotorizadoFrame(ctrl);
+	    listado.setVisible(true);
+		
+	}
+	}

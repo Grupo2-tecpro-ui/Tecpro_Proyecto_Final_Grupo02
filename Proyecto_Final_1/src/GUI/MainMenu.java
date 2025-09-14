@@ -4,39 +4,38 @@ import java.awt.*;
 import Controlador.ControladorMotorizado;
 public class MainMenu extends JFrame {
 	private static final long serialVersionUID = 1L;
-	 private final ControladorMotorizado controlador;
+	private JButton btnRegistroMotorizado;
+    private ControladorMotorizado controlador;
 
-	    public MainMenu(ControladorMotorizado controlador) {
-	        this.controlador = controlador;
-	        initUI();
-	    }
+    public MainMenu() {
+        controlador = new ControladorMotorizado();
 
-	    private void initUI() {
-	        setTitle("Menú Principal");
-	        setSize(400, 300);
-	        setLocationRelativeTo(null);
-	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Menú Principal - Sistema");
+        setSize(300, 200);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-	        JButton btnRegistroMotorizado = new JButton("Registrar Motorizado");
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-	        // Acción al dar clic
-	        btnRegistroMotorizado.addActionListener(e -> {
-	            System.out.println("Botón clickeado: " + e.getActionCommand());
-	            RegistroMotorizadoFrame registroFrame = new RegistroMotorizadoFrame(controlador);
-	            registroFrame.setVisible(true);
-	        });
+        btnRegistroMotorizado = new JButton("Registrar Motorizado");
+        btnRegistroMotorizado.setBounds(73, 46, 143, 25);
+        panel.add(btnRegistroMotorizado);
 
-	        JPanel panel = new JPanel();
-	        panel.add(btnRegistroMotorizado);
+        getContentPane().add(panel);
+        
+        JButton btnListadoMotorizados = new JButton("Listado de Motorizados");
+        btnListadoMotorizados.setBounds(73, 82, 143, 25);
+        panel.add(btnListadoMotorizados);
 
-	        add(panel, BorderLayout.CENTER);
-	    }
-
-	    public static void main(String[] args) {
-	        SwingUtilities.invokeLater(() -> {
-	            ControladorMotorizado controlador = new ControladorMotorizado();
-	            new MainMenu(controlador).setVisible(true);
-	        });
-	    }
+        btnListadoMotorizados.addActionListener(e -> {
+            ListadoMotorizadoFrame listadoFrame = new ListadoMotorizadoFrame(controlador);
+            listadoFrame.setVisible(true);
+        });
+       
+        btnRegistroMotorizado.addActionListener(e -> {
+            RegistroMotorizadoFrame registroFrame = new RegistroMotorizadoFrame(controlador);
+            registroFrame.setVisible(true);
+        });
     }
-
+    }

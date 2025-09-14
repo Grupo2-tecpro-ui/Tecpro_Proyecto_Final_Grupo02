@@ -1,51 +1,69 @@
 package Modelado;
 
 public class Motorizado {
-    private int id;
-    private String dni;
-    private String nombres;
-    private String apellidos;
-    private String celularTrabajo;
-    private String placaMoto;
-    private String marcaMoto;
-    private String modeloMoto;
-    private String breveteCategoria;
-    private String vencBrevete;     
-    private boolean soatVigente;
-    private String estado;         
-    private String fechaIngreso;   
-    private String tipoContrato;  
-    private int idSede;
+	private int id;
+	private String dni;
+	private String nombres;
+	private String apellidos;
+	private String celular;
+	private String placa;
+	private String marca;
+	private String modelo;
+	private String brevete;
+	private String vencBrevete;
+	private boolean soat;
+	private String estado;
+	private String fechaIngreso;
+	private String contrato;
+	private int tarjetasAsignadas; // NUEVO: cantidad de tarjetas asignadas
+	private boolean diaRuta; // NUEVO: si marca el día de la ruta
+	private int idSede;
+	private String fechaTarjetas;
 
 
+	
 
-    public Motorizado(int id, String dni, String nombres, String apellidos, String celularTrabajo, String placaMoto,
-			String marcaMoto, String modeloMoto, String breveteCategoria, String vencBrevete, boolean soatVigente,
-			String estado, String fechaIngreso, String tipoContrato, int idSede) {
-		super();
+
+	public Motorizado(int id, String dni, String nombres, String apellidos, String celular, String placa, String marca,
+			String modelo, String brevete, String vencBrevete, boolean soat, String estado, String fechaIngreso,
+			String contrato, int tarjetasAsignadas, boolean diaRuta, String fechaTarjetas, int idSede) {
+		
 		this.id = id;
 		this.dni = dni;
 		this.nombres = nombres;
 		this.apellidos = apellidos;
-		this.celularTrabajo = celularTrabajo;
-		this.placaMoto = placaMoto;
-		this.marcaMoto = marcaMoto;
-		this.modeloMoto = modeloMoto;
-		this.breveteCategoria = breveteCategoria;
+		this.celular = celular;
+		this.placa = placa;
+		this.marca = marca;
+		this.modelo = modelo;
+		this.brevete = brevete;
 		this.vencBrevete = vencBrevete;
-		this.soatVigente = soatVigente;
+		this.soat = soat;
 		this.estado = estado;
 		this.fechaIngreso = fechaIngreso;
-		this.tipoContrato = tipoContrato;
+		this.contrato = contrato;
+		this.tarjetasAsignadas = tarjetasAsignadas;
+		this.diaRuta = diaRuta;
+		 this.fechaTarjetas = fechaTarjetas;
 		this.idSede = idSede;
 	}
-
-
+	   public Motorizado(int id, String dni, String nombres, String apellidos,
+               String celular, String placa, String marca, String modelo,
+               String brevete, String vencBrevete, boolean soat,
+               String estado, String fechaIngreso, String contrato, int idSede) {
+ this(id, dni, nombres, apellidos, celular, placa, marca, modelo,
+      brevete, vencBrevete, soat, estado, fechaIngreso, contrato,
+      0,      // tarjetasAsignadas por defecto
+      false,  // diaRuta por defecto
+      null,   // fechaTarjetas por defecto
+      idSede);
+}
+	 public String getFechaTarjetas() { return fechaTarjetas; }
+	 public void setFechaTarjetas(String fechaTarjetas) { this.fechaTarjetas = fechaTarjetas; }
 
 	public int getId() {
 		return id;
 	}
-
 
 
 	public void setId(int id) {
@@ -53,11 +71,9 @@ public class Motorizado {
 	}
 
 
-
 	public String getDni() {
 		return dni;
 	}
-
 
 
 	public void setDni(String dni) {
@@ -65,11 +81,9 @@ public class Motorizado {
 	}
 
 
-
 	public String getNombres() {
 		return nombres;
 	}
-
 
 
 	public void setNombres(String nombres) {
@@ -77,11 +91,9 @@ public class Motorizado {
 	}
 
 
-
 	public String getApellidos() {
 		return apellidos;
 	}
-
 
 
 	public void setApellidos(String apellidos) {
@@ -89,65 +101,54 @@ public class Motorizado {
 	}
 
 
-
-	public String getCelularTrabajo() {
-		return celularTrabajo;
+	public String getCelular() {
+		return celular;
 	}
 
 
-
-	public void setCelularTrabajo(String celularTrabajo) {
-		this.celularTrabajo = celularTrabajo;
+	public void setCelular(String celular) {
+		this.celular = celular;
 	}
 
 
-
-	public String getPlacaMoto() {
-		return placaMoto;
+	public String getPlaca() {
+		return placa;
 	}
 
 
-
-	public void setPlacaMoto(String placaMoto) {
-		this.placaMoto = placaMoto;
+	public void setPlaca(String placa) {
+		this.placa = placa;
 	}
 
 
-
-	public String getMarcaMoto() {
-		return marcaMoto;
+	public String getMarca() {
+		return marca;
 	}
 
 
-
-	public void setMarcaMoto(String marcaMoto) {
-		this.marcaMoto = marcaMoto;
+	public void setMarca(String marca) {
+		this.marca = marca;
 	}
 
 
-
-	public String getModeloMoto() {
-		return modeloMoto;
+	public String getModelo() {
+		return modelo;
 	}
 
 
-
-	public void setModeloMoto(String modeloMoto) {
-		this.modeloMoto = modeloMoto;
+	public void setModelo(String modelo) {
+		this.modelo = modelo;
 	}
 
 
-
-	public String getBreveteCategoria() {
-		return breveteCategoria;
+	public String getBrevete() {
+		return brevete;
 	}
 
 
-
-	public void setBreveteCategoria(String breveteCategoria) {
-		this.breveteCategoria = breveteCategoria;
+	public void setBrevete(String brevete) {
+		this.brevete = brevete;
 	}
-
 
 
 	public String getVencBrevete() {
@@ -155,23 +156,19 @@ public class Motorizado {
 	}
 
 
-
 	public void setVencBrevete(String vencBrevete) {
 		this.vencBrevete = vencBrevete;
 	}
 
 
-
-	public boolean isSoatVigente() {
-		return soatVigente;
+	public boolean isSoat() {
+		return soat;
 	}
 
 
-
-	public void setSoatVigente(boolean soatVigente) {
-		this.soatVigente = soatVigente;
+	public void setSoat(boolean soat) {
+		this.soat = soat;
 	}
-
 
 
 	public String getEstado() {
@@ -179,11 +176,9 @@ public class Motorizado {
 	}
 
 
-
 	public void setEstado(String estado) {
 		this.estado = estado;
 	}
-
 
 
 	public String getFechaIngreso() {
@@ -191,23 +186,39 @@ public class Motorizado {
 	}
 
 
-
 	public void setFechaIngreso(String fechaIngreso) {
 		this.fechaIngreso = fechaIngreso;
 	}
 
 
-
-	public String getTipoContrato() {
-		return tipoContrato;
+	public String getContrato() {
+		return contrato;
 	}
 
 
-
-	public void setTipoContrato(String tipoContrato) {
-		this.tipoContrato = tipoContrato;
+	public void setContrato(String contrato) {
+		this.contrato = contrato;
 	}
 
+
+	public int getTarjetasAsignadas() {
+		return tarjetasAsignadas;
+	}
+
+
+	public void setTarjetasAsignadas(int tarjetasAsignadas) {
+		this.tarjetasAsignadas = tarjetasAsignadas;
+	}
+
+
+	public boolean isDiaRuta() {
+		return diaRuta;
+	}
+
+
+	public void setDiaRuta(boolean diaRuta) {
+		this.diaRuta = diaRuta;
+	}
 
 
 	public int getIdSede() {
@@ -215,14 +226,8 @@ public class Motorizado {
 	}
 
 
-
 	public void setIdSede(int idSede) {
 		this.idSede = idSede;
 	}
 
-
-	@Override
-    public String toString() {
-        return "Motorizado{id=" + id + ", dni=" + dni + ", nombres=" + nombres + " " + apellidos + "}";
-    }
 }

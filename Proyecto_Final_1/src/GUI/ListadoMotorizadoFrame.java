@@ -1,0 +1,100 @@
+package GUI;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+import Controlador.ControladorMotorizado;
+import Modelado.Motorizado;
+
+public class ListadoMotorizadoFrame extends JFrame {
+
+    private ControladorMotorizado controlador;
+    private DefaultTableModel modeloTabla;
+    private JTable tabla;
+    private JTextField txtBuscarDni;
+
+    public ListadoMotorizadoFrame(ControladorMotorizado controlador) {
+        this.controlador = controlador;
+
+        setTitle("Listado de Motorizados");
+        setSize(926, 499);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new BorderLayout());
+
+        // Panel búsqueda
+        JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panelBusqueda.add(new JLabel("Buscar por DNI:"));
+        txtBuscarDni = new JTextField(15);
+        panelBusqueda.add(txtBuscarDni);
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnMostrarTodos = new JButton("Mostrar Todos");
+        panelBusqueda.add(btnBuscar);
+        panelBusqueda.add(btnMostrarTodos);
+
+        // Tabla
+        String[] columnas = {"ID","DNI","Nombres","Apellidos","Celular","Placa","Estado","Tarjetas","Fecha Tarjetas"};
+        modeloTabla = new DefaultTableModel(columnas, 0);
+        tabla = new JTable(modeloTabla);
+        JScrollPane scroll = new JScrollPane(tabla);
+
+        getContentPane().add(panelBusqueda, BorderLayout.NORTH);
+        getContentPane().add(scroll, BorderLayout.CENTER);
+
+        // Eventos
+        btnBuscar.addActionListener(e -> buscarPorDni());
+        btnMostrarTodos.addActionListener(e -> cargarMotorizados());
+
+        // Cargar al inicio
+        cargarMotorizados();
+    }
+
+    private void cargarMotorizados() {
+        modeloTabla.setRowCount(0);
+        List<Motorizado> lista = controlador.listarMotorizados();
+        for (Motorizado m : lista) {
+            modeloTabla.addRow(new Object[]{
+                    m.getId(),
+                    m.getDni(),
+                    m.getNombres(),
+                    m.getApellidos(),
+                    m.getCelular(),
+                    m.getPlaca(),
+                    m.getEstado(),
+                    m.getTarjetasAsignadas(),
+                    m.getFechaTarjetas()
+            });
+        }
+    }
+
+    private void buscarPorDni() {
+        String dni = txtBuscarDni.getText().trim();
+        modeloTabla.setRowCount(0);
+        List<Motorizado> lista = controlador.listarMotorizados();
+        int encontrados = 0;
+        for (Motorizado m : lista) {
+            if (dni.isEmpty() || m.getDni().equalsIgnoreCase(dni)) {
+                modeloTabla.addRow(new Object[]{
+                        m.getId(),
+                        m.getDni(),
+                        m.getNombres(),
+                        m.getApellidos(),
+                        m.getCelular(),
+                        m.getPlaca(),
+                        m.getEstado(),
+                        m.getTarjetasAsignadas(),
+                        m.getFechaTarjetas()
+                });
+                encontrados ++;
+            }
+          
+        }
+        if (!dni.isEmpty() && encontrados == 0) {
+            JOptionPane.showMessageDialog(this, "No se encontró motorizado con DNI: " + dni);
+
+    }
+
+
+    }
+}

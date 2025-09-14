@@ -4,47 +4,47 @@ import java.awt.*;
 
 public class LoginGUI extends JFrame { 
 	private static final long serialVersionUID = 1L;
-	   public LoginGUI() {
-        setTitle("Login - Registro de Visitas");
-        setSize(400, 250);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+	 private JTextField txtUsuario;
+	    private JPasswordField txtPassword;
+	    private JButton btnLogin;
 
-      
-        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+	    public LoginGUI() {
+	        setTitle("Login - Sistema de Mensajería");
+	        setSize(300, 200);
+	        setDefaultCloseOperation(EXIT_ON_CLOSE);
+	        setLocationRelativeTo(null);
 
-        JLabel userLabel = new JLabel("Usuario:");
-        JTextField userText = new JTextField();
+	        JPanel panel = new JPanel();
+	        panel.setLayout(null);
 
-        JLabel passLabel = new JLabel("Contraseña:");
-        JPasswordField passText = new JPasswordField();
+	        JLabel label = new JLabel("Usuario:");
+	        label.setFont(new Font("Times New Roman", Font.BOLD, 12));
+	        label.setBounds(10, 15, 139, 50);
+	        panel.add(label);
+	        txtUsuario = new JTextField();
+	        txtUsuario.setBounds(135, 23, 139, 34);
+	        panel.add(txtUsuario);
 
-        JButton loginButton = new JButton("Ingresar");
-        loginButton.addActionListener(e -> {
-           
-            MainMenu menu = new MainMenu(null);
-            menu.setVisible(true);
+	        JLabel label_1 = new JLabel("Contraseña:");
+	        label_1.setFont(new Font("Times New Roman", Font.BOLD, 12));
+	        label_1.setBounds(10, 55, 139, 50);
+	        panel.add(label_1);
+	        txtPassword = new JPasswordField();
+	        txtPassword.setBounds(135, 63, 139, 34);
+	        panel.add(txtPassword);
 
-           
-            dispose();
-        });
+	        btnLogin = new JButton("Ingresar");
+	        btnLogin.setFont(new Font("Times New Roman", Font.BOLD, 14));
+	        btnLogin.setBounds(73, 116, 139, 34);
+	        panel.add(btnLogin);
 
-    
-        panel.add(userLabel);
-        panel.add(userText);
-        panel.add(passLabel);
-        panel.add(passText);
-        panel.add(new JLabel());
-        panel.add(loginButton);
+	        getContentPane().add(panel);
 
-        add(panel); 
-    }
 
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new LoginGUI().setVisible(true);
-        });
-    }
-
+	        btnLogin.addActionListener(e -> {
+	            dispose(); 
+	            new MainMenu().setVisible(true); 
+	        });
+	    }
 }
+

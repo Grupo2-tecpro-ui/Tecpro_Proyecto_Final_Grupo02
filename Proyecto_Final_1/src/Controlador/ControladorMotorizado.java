@@ -1,30 +1,26 @@
 package Controlador;
-
-import java.util.List;
-import Modelado.Motorizado;
 import repositorio.InMemoryDatabase;
+import Modelado.Motorizado;
+import javax.swing.JOptionPane;
+import java.util.List;
 
 public class ControladorMotorizado {
-		  public Motorizado registrarMotorizado(String dni, String nombres, String apellidos,
-              String celularTrabajo, String placaMoto,
-              String marcaMoto, String modeloMoto,
-              String breveteCategoria, String vencBrevete,
-              boolean soatVigente, String estado,
-              String fechaIngreso, String tipoContrato, int idSede) {
-
-Motorizado m = new Motorizado(
-InMemoryDatabase.nextIdMotorizado(),
-dni, nombres, apellidos, celularTrabajo,
-placaMoto, marcaMoto, modeloMoto,
-breveteCategoria, vencBrevete,
-soatVigente, estado, fechaIngreso,
-tipoContrato, idSede
-);
-InMemoryDatabase.addMotorizado(m);
-return m;
+	
+	
+	
+	public void guardarMotorizado(Motorizado m) {
+		 InMemoryDatabase.addMotorizado(m);
+        JOptionPane.showMessageDialog(null,
+                "Motorizado guardado:\n" +
+                "DNI: " + m.getDni() + "\n" +
+                "Nombres: " + m.getNombres() + "\n" +
+                "Apellidos: " + m.getApellidos() + "\n" +
+                "Celular: " + m.getCelular() + "\n" +
+                "Placa: " + m.getPlaca()
+        );
+    }
+	  public List<Motorizado> listarMotorizados() {
+	        return InMemoryDatabase.getMotorizados();
+	    }
 }
 
-public List<Motorizado> listarMotorizados() {
-return InMemoryDatabase.getMotorizados();
-}
-}
