@@ -2,4 +2,5 @@
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
     <fullyQualifiedTypeName name="GUI.MainMenu"/>
+    <fullyQualifiedTypeName name="GUI.EditarMotorizado"/>
 </qualifiedTypeNameHistroy>

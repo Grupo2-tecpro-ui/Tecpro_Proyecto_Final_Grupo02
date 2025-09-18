@@ -55,6 +55,28 @@ public class InMemoryDatabase {
 	        }
 	        return false;
 	    }
-
+	    public static synchronized boolean Editar (String dni, String nuevosNombres, String nuevosApellidos, String nuevoCelular, int nuevasTarjetas, String nuevoEstado) {
+	    	if (dni == null) return false;
+	    	String d = dni.trim();
+	        for (int i = 0; i < MOTORIZADOS.size(); i++) {
+	            Motorizado m = MOTORIZADOS.get(i);
+	            if (m.getDni() != null) {
+	          if (m.getDni().trim().equals(d)) {
+	                m.setNombres(nuevosNombres);
+	    			m.setApellidos(nuevosApellidos);
+	    			m.setCelular(nuevoCelular);
+	    			m.setTarjetasAsignadas(nuevasTarjetas);
+	    			m.setEstado(nuevoEstado);
+	    			return true;
+	    									}
+	            
+	  	}
+	            		
+	     		}    
+	        return false;
+	    
 	    }
+
+}
+
 

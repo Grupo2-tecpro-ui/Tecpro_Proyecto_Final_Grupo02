@@ -1,0 +1,137 @@
+package GUI;
+
+import javax.swing.*;
+import java.awt.*;
+import Controlador.ControladorMotorizado;
+import Modelado.Motorizado;
+
+
+public class EditarMotorizado extends JFrame {
+
+	private JTextField txtDni;
+    private JTextField txtNombres;
+    private JTextField txtApellidos;
+    private JTextField txtCelular;
+    private JTextField txtTarjetas;
+    private JComboBox<String> cboEstado;
+    private JButton btnGuardar, btnCancelar;
+
+    private ControladorMotorizado controlador;
+    private String originalDni; 
+	
+    public EditarMotorizado(ControladorMotorizado controlador, Motorizado m) {
+        this.controlador = controlador;
+        this.originalDni = m.getDni();
+
+        setTitle("Editar Motorizado - DNI: " + originalDni);
+        setSize(420, 300);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(null);
+
+        // DNI (no editable)
+        JLabel lblDni = new JLabel("DNI:");
+        lblDni.setBounds(20, 10, 120, 25);
+        add(lblDni);
+        txtDni = new JTextField(originalDni);
+        txtDni.setBounds(150, 10, 200, 25);
+        txtDni.setEditable(false);
+        add(txtDni);
+
+        // Nombres
+        JLabel lblNombres = new JLabel("Nombres:");
+        lblNombres.setBounds(20, 45, 120, 25);
+        add(lblNombres);
+        txtNombres = new JTextField(m.getNombres());
+        txtNombres.setBounds(150, 45, 200, 25);
+        add(txtNombres);
+
+        // Apellidos
+        JLabel lblApellidos = new JLabel("Apellidos:");
+        lblApellidos.setBounds(20, 80, 120, 25);
+        add(lblApellidos);
+        txtApellidos = new JTextField(m.getApellidos());
+        txtApellidos.setBounds(150, 80, 200, 25);
+        add(txtApellidos);
+
+        // Celular
+        JLabel lblCelular = new JLabel("Celular:");
+        lblCelular.setBounds(20, 115, 120, 25);
+        add(lblCelular);
+        txtCelular = new JTextField(m.getCelular());
+        txtCelular.setBounds(150, 115, 200, 25);
+        add(txtCelular);
+
+        // Tarjetas
+        JLabel lblTarjetas = new JLabel("Tarjetas asignadas:");
+        lblTarjetas.setBounds(20, 150, 120, 25);
+        add(lblTarjetas);
+        txtTarjetas = new JTextField(String.valueOf(m.getTarjetasAsignadas()));
+        txtTarjetas.setBounds(150, 150, 200, 25);
+        add(txtTarjetas);
+
+        // Estado
+        JLabel lblEstado = new JLabel("Estado:");
+        lblEstado.setBounds(20, 185, 120, 25);
+        add(lblEstado);
+        cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+        cboEstado.setBounds(150, 185, 200, 25);
+        cboEstado.setSelectedItem(m.getEstado() != null ? m.getEstado() : "Activo");
+        add(cboEstado);
+
+        // Botones
+        btnGuardar = new JButton("Guardar");
+        btnGuardar.setBounds(70, 220, 120, 25);
+        add(btnGuardar);
+
+        btnCancelar = new JButton("Cancelar");
+        btnCancelar.setBounds(210, 220, 120, 25);
+        add(btnCancelar);
+
+        // Listeners
+        btnCancelar.addActionListener(e -> dispose());
+
+        btnGuardar.addActionListener(e -> {
+            // Validaciones básicas
+            String nuevosNombres = txtNombres.getText().trim();
+            String nuevosApellidos = txtApellidos.getText().trim();
+            String nuevoCelular = txtCelular.getText().trim();
+            String tarjetasStr = txtTarjetas.getText().trim();
+            String nuevoEstado = (String) cboEstado.getSelectedItem();
+
+            if (nuevosNombres.isEmpty() || nuevosApellidos.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nombres y apellidos no pueden estar vacíos.");
+                return;
+            }
+            int nuevasTarjetas;
+            try {
+                nuevasTarjetas = Integer.parseInt(tarjetasStr);
+                if (nuevasTarjetas < 0) {
+                    JOptionPane.showMessageDialog(this, "Cantidad de tarjetas no puede ser negativa.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Tarjetas inválidas (debe ser número).");
+                return;
+            }
+
+   
+            boolean ok = controlador.EditarporDNI(originalDni, nuevosNombres, nuevosApellidos,
+                                                      nuevoCelular, nuevasTarjetas, nuevoEstado);
+            if (ok) {
+                JOptionPane.showMessageDialog(this, "Motorizado actualizado correctamente.");
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo actualizar el motorizado.");
+            }
+        });
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+}

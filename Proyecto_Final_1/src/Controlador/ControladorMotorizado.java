@@ -29,6 +29,13 @@ public class ControladorMotorizado {
 	  public boolean existeDni(String dni) {
 		    return InMemoryDatabase.existeDni(dni);
 		}
+	  public boolean EditarporDNI(String dni, String nuevosNombres, String nuevosApellidos,
+              String nuevoCelular, int nuevasTarjetas, String nuevoEstado) 
+	  {
+		  if (dni == null || dni.trim().isEmpty()) return false;
+		  return repositorio.InMemoryDatabase.Editar(dni.trim(), nuevosNombres, nuevosApellidos,
+                                  nuevoCelular, nuevasTarjetas, nuevoEstado);
+	  }
 
 }
 

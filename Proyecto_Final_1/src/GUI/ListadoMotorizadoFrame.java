@@ -7,6 +7,7 @@ import Controlador.ControladorMotorizado;
 import Modelado.Motorizado;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.GroupLayout.Alignment;
 
 public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 
@@ -16,6 +17,7 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
     private JTextField txtBuscarDni;
     private JTextField txtdni;
     private JButton btnElimianr;
+    private JButton btnEditarMotorizado;
 
     public ListadoMotorizadoFrame(ControladorMotorizado controlador) {
         this.controlador = controlador;
@@ -26,16 +28,18 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         // Panel búsqueda
-        JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel panelBusqueda = new JPanel();
         panelBusqueda.setBounds(0, 0, 910, 33);
-        panelBusqueda.add(new JLabel("Buscar por DNI:"));
+        JLabel label = new JLabel("Buscar por DNI:");
+        label.setFont(new Font("Tahoma", Font.PLAIN, 9));
+        label.setBounds(10, 9, 80, 14);
         txtBuscarDni = new JTextField(15);
-        panelBusqueda.add(txtBuscarDni);
+        txtBuscarDni.setBounds(96, 6, 126, 20);
 
         JButton btnBuscar = new JButton("Buscar");
+        btnBuscar.setBounds(232, 5, 76, 23);
         JButton btnMostrarTodos = new JButton("Mostrar Todos");
-        panelBusqueda.add(btnBuscar);
-        panelBusqueda.add(btnMostrarTodos);
+        btnMostrarTodos.setBounds(318, 5, 117, 23);
 
         // Tabla
         String[] columnas = {"ID","DNI","Nombres","Apellidos","Celular","Placa","Estado","Tarjetas","Fecha Tarjetas"};
@@ -48,14 +52,29 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
         getContentPane().add(panelBusqueda);
         
         JLabel lblEliminarPorDni = new JLabel("Eliminar por DNI:");
-        panelBusqueda.add(lblEliminarPorDni);
+        lblEliminarPorDni.setFont(new Font("Tahoma", Font.PLAIN, 9));
+        lblEliminarPorDni.setBounds(445, 9, 80, 14);
         
         txtdni = new JTextField(15);
-        panelBusqueda.add(txtdni);
+        txtdni.setBounds(552, 6, 126, 20);
         
         btnElimianr = new JButton("Eliminar");
+        btnElimianr.setBounds(688, 5, 85, 23);
         btnElimianr.addActionListener(this);
+        
+        btnEditarMotorizado = new JButton("Editar Motorizado");
+        btnEditarMotorizado.setFont(new Font("Tahoma", Font.PLAIN, 9));
+        btnEditarMotorizado.setBounds(783, 5, 117, 23);
+        btnEditarMotorizado.addActionListener(this);
+        panelBusqueda.setLayout(null);
+        panelBusqueda.add(label);
+        panelBusqueda.add(txtBuscarDni);
+        panelBusqueda.add(btnBuscar);
+        panelBusqueda.add(btnMostrarTodos);
+        panelBusqueda.add(lblEliminarPorDni);
+        panelBusqueda.add(txtdni);
         panelBusqueda.add(btnElimianr);
+        panelBusqueda.add(btnEditarMotorizado);
         getContentPane().add(scroll);
 
         // Eventos
@@ -114,6 +133,9 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 
     }
 	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == btnEditarMotorizado) {
+			do_btnEditarMotorizado_actionPerformed(e);
+		}
 		if (e.getSource() == btnElimianr) {
 			do_btnElimianr_actionPerformed(e);
 		}
@@ -157,7 +179,51 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 
 	
 	
+	protected void do_btnEditarMotorizado_actionPerformed(ActionEvent e) {
+		
+		String dniToEdit = txtBuscarDni.getText().trim();
+	    if (dniToEdit.isEmpty()) {
+	        dniToEdit = JOptionPane.showInputDialog(this, "Ingrese DNI del motorizado a editar:");
+	        if (dniToEdit == null) return;
+	        dniToEdit = dniToEdit.trim();
+	    }
+
+	       
+	    Motorizado found = null;
+	    List<Motorizado> lista = controlador.listarMotorizados();
+	    for (Motorizado m : lista) {
+	        if (dniToEdit.equals(m.getDni())) {
+	            found = m;
+	            break;
+	        }
+	    }
+
+	    if (found == null) {
+	        JOptionPane.showMessageDialog(this, "No se encontró motorizado con DNI: " + dniToEdit);
+	        return;
+	    }
+
 	
-	
-	
+	    EditarMotorizado editFrame = new EditarMotorizado(controlador, found);
+	    editFrame.setVisible(true);
+
+	      editFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+	        @Override
+	        public void windowClosed(java.awt.event.WindowEvent e) {
+	            cargarMotorizados();
+	        }
+
+	        @Override
+	        public void windowDeactivated(java.awt.event.WindowEvent e) {
+
+	            cargarMotorizados();
+	        }
+	    });
+	}
 }
+
+	
+		
+		
+		
+
