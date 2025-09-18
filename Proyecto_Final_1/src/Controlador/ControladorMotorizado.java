@@ -22,5 +22,13 @@ public class ControladorMotorizado {
 	  public List<Motorizado> listarMotorizados() {
 	        return InMemoryDatabase.getMotorizados();
 	    }
+	  public boolean eliminarPorDni(String dni) {
+		    if (dni == null || dni.trim().isEmpty()) return false;
+		    return InMemoryDatabase.EliminarPorDni(dni.trim());
+		}
+	  public boolean existeDni(String dni) {
+		    return InMemoryDatabase.existeDni(dni);
+		}
+
 }
 

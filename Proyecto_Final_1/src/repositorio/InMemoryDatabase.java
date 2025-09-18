@@ -31,5 +31,30 @@ public class InMemoryDatabase {
 	        }
 	        return false;
 }
-	   
-}
+	    public static synchronized boolean EliminarPorDni(String dni) {
+	     
+	        if (dni == null) {
+	            return false;
+	        }
+
+	       String d = dni.trim();
+
+	        
+	        for (int i = 0; i < MOTORIZADOS.size(); i++) {
+	            Motorizado m = MOTORIZADOS.get(i);
+
+	            
+	            if (m.getDni() != null) {
+	                
+	                if (m.getDni().trim().equals(d)) {
+	                    
+	                    MOTORIZADOS.remove(i);
+	                    return true; 
+	                }
+	            }
+	        }
+	        return false;
+	    }
+
+	    }
+
