@@ -1,0 +1,28 @@
+package Modelado;
+
+public class Entrega {
+	private int id;
+    private String dniMotorizado;
+    private int cantidad;
+    private String fecha; // formato YYYY-MM-DD
+
+    public Entrega(int id, String dniMotorizado, int cantidad, String fecha) {
+        this.id = id;
+        this.dniMotorizado = dniMotorizado;
+        this.cantidad = cantidad;
+        this.fecha = fecha;
+    }
+
+    // getters / setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getDniMotorizado() { return dniMotorizado; }
+    public void setDniMotorizado(String dniMotorizado) { this.dniMotorizado = dniMotorizado; }
+
+    public int getCantidad() { return cantidad; }
+    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
+
+    public String getFecha() { return fecha; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
+}

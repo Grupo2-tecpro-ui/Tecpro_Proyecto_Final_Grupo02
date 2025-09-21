@@ -1,7 +1,8 @@
-2025/09/18-17:22:25.523 10f0 Log #15: 1 ops saved to Table #17 OK
-2025/09/18-17:22:25.528 10f0 Archiving C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database/000015.log: OK
-2025/09/18-17:22:25.532 10f0 Table #4: 1 entries OK
-2025/09/18-17:22:25.535 10f0 Table #16: 1 entries OK
-2025/09/18-17:22:25.536 10f0 Table #17: 1 entries OK
-2025/09/18-17:22:25.573 10f0 Archiving C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database/MANIFEST-000001: OK
-2025/09/18-17:22:25.609 10f0 **** Repaired leveldb C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database; recovered 3 files; 454 bytes. Some data may have been lost. ****
+2025/09/20-19:27:35.210 3418 Log #19: 1 ops saved to Table #20 OK
+2025/09/20-19:27:35.214 3418 Archiving C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database/000019.log: OK
+2025/09/20-19:27:35.216 3418 Table #4: 1 entries OK
+2025/09/20-19:27:35.218 3418 Table #16: 1 entries OK
+2025/09/20-19:27:35.220 3418 Table #17: 1 entries OK
+2025/09/20-19:27:35.220 3418 Table #20: 1 entries OK
+2025/09/20-19:27:35.253 3418 Archiving C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database/MANIFEST-000001: OK
+2025/09/20-19:27:35.278 3418 **** Repaired leveldb C:\Users\USER\Desktop\Tecpro_Proyecto_Final_Grupo02\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Site Characteristics Database; recovered 4 files; 616 bytes. Some data may have been lost. ****

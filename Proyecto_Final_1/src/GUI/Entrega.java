@@ -1,0 +1,95 @@
+package GUI;
+import javax.swing.*;
+import java.awt.*;
+import Controlador.ControladorMotorizado;
+import Controlador.MotorizadoNoEncontrado;
+import Controlador.CartasInsuficientes;
+
+public class Entrega extends JFrame {
+	 private static final long serialVersionUID = 1L;
+	    private JTextField txtDni;
+	    private JTextField txtCantidad;
+	    private JSpinner spinnerFecha;
+	    private JButton btnRegistrar, btnCancelar;
+	    private ControladorMotorizado controlador;
+
+	    public Entrega(ControladorMotorizado controlador, String prefillDni) {
+	        this.controlador = controlador;
+	        setTitle("Registrar Entrega");
+	        setSize(380, 220);
+	        setLocationRelativeTo(null);
+	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	        setLayout(null);
+
+	        JLabel lblDni = new JLabel("DNI:");
+	        lblDni.setBounds(20, 15, 120, 25);
+	        add(lblDni);
+	        txtDni = new JTextField(prefillDni != null ? prefillDni : "");
+	        txtDni.setBounds(140, 15, 200, 25);
+	        add(txtDni);
+
+	        JLabel lblCantidad = new JLabel("Cantidad entregada:");
+	        lblCantidad.setBounds(20, 50, 120, 25);
+	        add(lblCantidad);
+	        txtCantidad = new JTextField();
+	        txtCantidad.setBounds(140, 50, 200, 25);
+	        add(txtCantidad);
+
+	        JLabel lblFecha = new JLabel("Fecha (YYYY-MM-DD):");
+	        lblFecha.setBounds(20, 85, 150, 25);
+	        add(lblFecha);
+	        SpinnerDateModel modelDate = new SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.DAY_OF_MONTH);
+	        spinnerFecha = new JSpinner(modelDate);
+	        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFecha, "yyyy-MM-dd");
+	        spinnerFecha.setEditor(editor);
+	        spinnerFecha.setBounds(140, 85, 200, 25);
+	        add(spinnerFecha);
+
+	        btnRegistrar = new JButton("Registrar");
+	        btnRegistrar.setBounds(60, 130, 120, 28);
+	        add(btnRegistrar);
+
+	        btnCancelar = new JButton("Cancelar");
+	        btnCancelar.setBounds(200, 130, 120, 28);
+	        add(btnCancelar);
+
+	        btnCancelar.addActionListener(e -> dispose());
+
+	      
+	        btnRegistrar.addActionListener(e -> {
+	            String dni = txtDni.getText().trim();
+	            String cantidadStr = txtCantidad.getText().trim();
+	            java.util.Date fechaUtil = (java.util.Date) spinnerFecha.getValue();
+	            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+	            String fechaStr = sdf.format(fechaUtil);
+
+	 
+	            int cantidad;
+	            try {
+	                cantidad = Integer.parseInt(cantidadStr);
+	            } catch (NumberFormatException ex) {
+	                JOptionPane.showMessageDialog(this, "Cantidad inválida. Debe ser un número entero.");
+	                return;
+	            }
+
+	           
+	            try {
+	               
+	                controlador.registrarEntrega(dni, cantidad, fechaStr);
+	                JOptionPane.showMessageDialog(this, "Entrega registrada correctamente.");
+	                dispose();
+	            } catch (MotorizadoNoEncontrado ex) {
+	                
+	                JOptionPane.showMessageDialog(this, ex.getMessage());
+	            } catch (CartasInsuficientes ex) {
+	                JOptionPane.showMessageDialog(this, ex.getMessage());
+	            } catch (IllegalArgumentException ex) {
+	                JOptionPane.showMessageDialog(this, "Entrada inválida: " + ex.getMessage());
+	            } catch (Exception ex) {
+	               
+	                ex.printStackTrace();
+	                JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
+	            }
+	        });
+	    }
+}

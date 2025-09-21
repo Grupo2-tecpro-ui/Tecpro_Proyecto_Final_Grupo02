@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
     <fullyQualifiedTypeName name="GUI.MainMenu"/>
     <fullyQualifiedTypeName name="GUI.EditarMotorizado"/>
+    <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
+    <fullyQualifiedTypeName name="Controlador.MotorizadoNoEncontrado"/>
+    <fullyQualifiedTypeName name="Controlador.CartasInsuficientes"/>
+    <fullyQualifiedTypeName name="GUI.Entrega"/>
 </qualifiedTypeNameHistroy>

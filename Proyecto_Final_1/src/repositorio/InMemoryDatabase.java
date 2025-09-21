@@ -9,6 +9,13 @@ public class InMemoryDatabase {
 	
 	 private static int seqMotorizado = 1; 
 	    private static final List<Motorizado> MOTORIZADOS = new ArrayList<>();
+	  
+	    
+	    private static int seqEntrega = 1; 
+	    private static final java.util.List<Modelado.Entrega> ENTREGAS = new java.util.ArrayList<>();
+	    public static synchronized java.util.List<Modelado.Entrega> getEntregas() {
+	        return new java.util.ArrayList<>(ENTREGAS);
+	    }
 
 	    public static int nextIdMotorizado() {
 	        return seqMotorizado++;
@@ -75,6 +82,26 @@ public class InMemoryDatabase {
 	     		}    
 	        return false;
 	    
+	    }
+	    public static synchronized boolean addEntrega(Modelado.Entrega e) {
+	        if (e == null) return false;
+	        if (e.getId() == 0) e.setId(seqEntrega++);
+	        ENTREGAS.add(e);
+	        return true;
+	    }
+	    public static synchronized Modelado.Motorizado findByDniObj(String dni) {
+	        if (dni == null) return null;
+	        String d = dni.trim();
+	        for (Modelado.Motorizado m : MOTORIZADOS) {
+	            if (m.getDni() != null && m.getDni().trim().equals(d)) return m;
+	        }
+	        return null;
+	    }
+	    public static synchronized Modelado.Motorizado findById(int id) {
+	        for (Modelado.Motorizado m : MOTORIZADOS) {
+	            if (m.getId() == id) return m;
+	        }
+	        return null;
 	    }
 
 }

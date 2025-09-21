@@ -42,7 +42,7 @@ public class RegistroMotorizadoFrame  extends JFrame implements ActionListener {
         setSize(600, 720);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+        
         JPanel panel = new JPanel();
         panel.setLayout(null);
 

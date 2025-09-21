@@ -18,9 +18,11 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
     private JTextField txtdni;
     private JButton btnElimianr;
     private JButton btnEditarMotorizado;
+    private JButton btnRegistrarEntrega;
 
     public ListadoMotorizadoFrame(ControladorMotorizado controlador) {
         this.controlador = controlador;
+        
 
         setTitle("Listado de Motorizados");
         setSize(926, 499);
@@ -32,17 +34,17 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
         panelBusqueda.setBounds(0, 0, 910, 33);
         JLabel label = new JLabel("Buscar por DNI:");
         label.setFont(new Font("Tahoma", Font.PLAIN, 9));
-        label.setBounds(10, 9, 80, 14);
         txtBuscarDni = new JTextField(15);
-        txtBuscarDni.setBounds(96, 6, 126, 20);
+        panelBusqueda.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        
+        btnRegistrarEntrega = new JButton("Registrar Entrega");
+        panelBusqueda.add(btnRegistrarEntrega);
 
         JButton btnBuscar = new JButton("Buscar");
-        btnBuscar.setBounds(232, 5, 76, 23);
         JButton btnMostrarTodos = new JButton("Mostrar Todos");
-        btnMostrarTodos.setBounds(318, 5, 117, 23);
 
         // Tabla
-        String[] columnas = {"ID","DNI","Nombres","Apellidos","Celular","Placa","Estado","Tarjetas","Fecha Tarjetas"};
+        String[] columnas = {"ID","DNI","Nombres","Apellidos","Celular","Placa","Estado","Tarjetas en Ruta","Fecha Tarjetas"};
         modeloTabla = new DefaultTableModel(columnas, 0);
         tabla = new JTable(modeloTabla);
         JScrollPane scroll = new JScrollPane(tabla);
@@ -53,20 +55,15 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
         
         JLabel lblEliminarPorDni = new JLabel("Eliminar por DNI:");
         lblEliminarPorDni.setFont(new Font("Tahoma", Font.PLAIN, 9));
-        lblEliminarPorDni.setBounds(445, 9, 80, 14);
         
         txtdni = new JTextField(15);
-        txtdni.setBounds(552, 6, 126, 20);
         
         btnElimianr = new JButton("Eliminar");
-        btnElimianr.setBounds(688, 5, 85, 23);
         btnElimianr.addActionListener(this);
         
         btnEditarMotorizado = new JButton("Editar Motorizado");
         btnEditarMotorizado.setFont(new Font("Tahoma", Font.PLAIN, 9));
-        btnEditarMotorizado.setBounds(783, 5, 117, 23);
         btnEditarMotorizado.addActionListener(this);
-        panelBusqueda.setLayout(null);
         panelBusqueda.add(label);
         panelBusqueda.add(txtBuscarDni);
         panelBusqueda.add(btnBuscar);
@@ -83,7 +80,45 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 
         // Cargar al inicio
         cargarMotorizados();
+        btnRegistrarEntrega.addActionListener(e ->{
+    	    
+    	    String dniSeleccionado = null;
+    	    int fila = tabla.getSelectedRow();
+    	    if (fila >= 0) {
+    	        Object val = tabla.getValueAt(fila, 1); 
+    	        if (val != null) dniSeleccionado = val.toString().trim();
+    	    }
+
+    	   
+    	    if (dniSeleccionado == null || dniSeleccionado.isEmpty()) {
+    	        dniSeleccionado = txtBuscarDni.getText().trim();
+    	    }
+
+    	   
+    	    if (dniSeleccionado == null || !dniSeleccionado.matches("\\d{8}")) {
+    	        dniSeleccionado = JOptionPane.showInputDialog(this, "Ingrese DNI del motorizado para registrar entrega:");
+    	        if (dniSeleccionado == null) return;
+    	        dniSeleccionado = dniSeleccionado.trim();
+    	    }
+
+    	
+    	    Entrega ef = new Entrega(this.controlador != null ? this.controlador : new Controlador.ControladorMotorizado(), dniSeleccionado);
+    	    ef.setVisible(true);
+
+    	    
+    	    ef.addWindowListener(new java.awt.event.WindowAdapter() {
+    	        @Override
+    	        public void windowClosed(java.awt.event.WindowEvent e) {
+    	            cargarMotorizados(); 
+    	        }
+    	        @Override
+    	        public void windowDeactivated(java.awt.event.WindowEvent e) {
+    	            cargarMotorizados();
+    	        }
+    	    });
+    	});
     }
+    
 
     private void cargarMotorizados() {
         modeloTabla.setRowCount(0);
@@ -179,6 +214,7 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 
 	
 	
+	
 	protected void do_btnEditarMotorizado_actionPerformed(ActionEvent e) {
 		
 		String dniToEdit = txtBuscarDni.getText().trim();
@@ -220,6 +256,7 @@ public class ListadoMotorizadoFrame extends JFrame implements ActionListener {
 	        }
 	    });
 	}
+	
 }
 
 	

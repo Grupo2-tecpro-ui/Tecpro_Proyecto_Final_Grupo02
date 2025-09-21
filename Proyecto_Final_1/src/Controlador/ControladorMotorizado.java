@@ -36,6 +36,63 @@ public class ControladorMotorizado {
 		  return repositorio.InMemoryDatabase.Editar(dni.trim(), nuevosNombres, nuevosApellidos,
                                   nuevoCelular, nuevasTarjetas, nuevoEstado);
 	  }
+	
+	  public void registrarEntrega(Modelado.Motorizado m, int cantidad) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      if (m == null) throw new MotorizadoNoEncontrado("Motorizado nulo.");
+	      registrarEntrega(m.getDni(), cantidad); 
+	  }
+		  
+	  public void registrarEntrega(String dni, int cantidad) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	     
+	      java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+	      String hoy = sdf.format(new java.util.Date());
+	      registrarEntrega(dni, cantidad, hoy); 
+	  }
+
+
+	 
+	  public void registrarEntrega(int id, int cantidad, String fecha) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      Modelado.Motorizado m = InMemoryDatabase.findById(id);
+	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con id: " + id);
+	  
+	      registrarEntrega(m.getDni(), cantidad, fecha);
+	  }
+	  
+
+	 public void registrarEntrega(String dni, int cantidad, String fecha) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      if (dni == null || dni.trim().isEmpty()) throw new MotorizadoNoEncontrado("DNI inválido.");
+	      Modelado.Motorizado m = InMemoryDatabase.findByDniObj(dni.trim());
+	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con DNI: " + dni);
+
+	      
+	      
+
+	      if (cantidad <= 0) throw new IllegalArgumentException("La cantidad debe ser mayor que 0.");
+
+	      
+	      int disponibles = m.getTarjetasAsignadas();
+	      if (cantidad > disponibles) {
+	         
+	          throw new CartasInsuficientes("No hay suficientes tarjetas. Disponibles: " 
+	                                               + disponibles + ", solicitado: " + cantidad);
+	      }
+
+	      
+	      Modelado.Entrega e = new Modelado.Entrega(0, dni.trim(), cantidad, fecha);
+	      boolean added = InMemoryDatabase.addEntrega(e);
+	      if (!added) {
+	          throw new RuntimeException("No se pudo registrar la entrega (error interno).");
+	      }
+
+	      
+	      m.setTarjetasAsignadas(disponibles - cantidad);
+
+	    
+	  }
 
 }
 

@@ -1,0 +1,102 @@
+package Controlador;
+import repositorio.InMemoryDatabase;
+import Modelado.Motorizado;
+import javax.swing.JOptionPane;
+import java.util.List;
+
+public class ControladorMotorizado {
+	
+	
+	
+	public void guardarMotorizado(Motorizado m) {
+		 InMemoryDatabase.addMotorizado(m);
+        JOptionPane.showMessageDialog(null,
+                "Motorizado guardado:\n" +
+                "DNI: " + m.getDni() + "\n" +
+                "Nombres: " + m.getNombres() + "\n" +
+                "Apellidos: " + m.getApellidos() + "\n" +
+                "Celular: " + m.getCelular() + "\n" +
+                "Placa: " + m.getPlaca()
+        );
+    }
+	  public List<Motorizado> listarMotorizados() {
+	        return InMemoryDatabase.getMotorizados();
+	    }
+	  public boolean eliminarPorDni(String dni) {
+		    if (dni == null || dni.trim().isEmpty()) return false;
+		    return InMemoryDatabase.EliminarPorDni(dni.trim());
+		}
+	  public boolean existeDni(String dni) {
+		    return InMemoryDatabase.existeDni(dni);
+		}
+	  public boolean EditarporDNI(String dni, String nuevosNombres, String nuevosApellidos,
+              String nuevoCelular, int nuevasTarjetas, String nuevoEstado) 
+	  {
+		  if (dni == null || dni.trim().isEmpty()) return false;
+		  return repositorio.InMemoryDatabase.Editar(dni.trim(), nuevosNombres, nuevosApellidos,
+                                  nuevoCelular, nuevasTarjetas, nuevoEstado);
+	  }
+	// 1) Sobrecarga: registrar por objeto Motorizado
+	  public void registrarEntrega(Modelado.Motorizado m, int cantidad) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      if (m == null) throw new MotorizadoNoEncontrado("Motorizado nulo.");
+	      registrarEntrega(m.getDni(), cantidad); // delega a la sobrecarga por DNI
+	  }
+	  //  <-- Comentario: sobrecarga 1 acepta objeto Motorizado. -->
+
+	  // 2) Sobrecarga: registrar por DNI (firma sencilla)
+	  public void registrarEntrega(String dni, int cantidad) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      // utiliza fecha "hoy" automáticamente
+	      java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+	      String hoy = sdf.format(new java.util.Date());
+	      registrarEntrega(dni, cantidad, hoy); // delega a la versión con fecha
+	  }
+	  //  <-- Comentario: sobrecarga 2 acepta DNI y cantidad; demuestra delegación entre sobrecargas. -->
+
+	  // 3) Sobrecarga: registrar por id con fecha (ejemplo de otra firma)
+	  public void registrarEntrega(int id, int cantidad, String fecha) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      Modelado.Motorizado m = InMemoryDatabase.findById(id);
+	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con id: " + id);
+	      // delega a la versión por DNI con fecha
+	      registrarEntrega(m.getDni(), cantidad, fecha);
+	  }
+	  //  <-- Comentario: sobrecarga 3 acepta id y fecha; evidencia que mismo nombre, distinto parámetro. -->
+
+	  // 4) Sobrecarga central: registrar por DNI con fecha (implementación)
+	  public void registrarEntrega(String dni, int cantidad, String fecha) 
+	          throws MotorizadoNoEncontrado, CartasInsuficientes {
+	      if (dni == null || dni.trim().isEmpty()) throw new MotorizadoNoEncontrado("DNI inválido.");
+	      Modelado.Motorizado m = InMemoryDatabase.findByDniObj(dni.trim());
+	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con DNI: " + dni);
+
+	      // Validación de cantidad
+	      if (cantidad <= 0) throw new IllegalArgumentException("La cantidad debe ser mayor que 0.");
+
+	      // comprobar tarjetas disponibles
+	      // suponemos que Motorizado tiene getTarjetasAsignadas()
+	      int disponibles = m.getTarjetasAsignadas();
+	      if (cantidad > disponibles) {
+	          // No hay suficientes tarjetas asignadas --> lanzamos excepción personalizada
+	          throw new CartasInsuficientes("No hay suficientes tarjetas. Disponibles: " 
+	                                               + disponibles + ", solicitado: " + cantidad);
+	      }
+
+	      // registrar la entrega en repositorio (crear Entrega)
+	      Modelado.Entrega e = new Modelado.Entrega(0, dni.trim(), cantidad, fecha);
+	      boolean added = InMemoryDatabase.addEntrega(e); // persistimos la entrega
+
+	      if (!added) {
+	          throw new RuntimeException("No se pudo registrar la entrega (error interno).");
+	      }
+
+	      // actualizar el motorizado: reducir tarjetas asignadas
+	      m.setTarjetasAsignadas(disponibles - cantidad);
+
+	      // Nota: no devolvemos valor; en GUI usaremos try/catch para confirmar o mostrar error.
+	  }
+	  //  <-- Comentario: sobrecarga 4 es la "implementación central" que realiza las validaciones, registra la entrega y actualiza el motorizado. -->
+
+}
+
