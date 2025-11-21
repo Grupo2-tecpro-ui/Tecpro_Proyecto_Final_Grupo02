@@ -5,14 +5,20 @@ import Modelado.HistorialEntrega;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class HistorialEntregaFrame extends JFrame {
+public class HistorialEntregaFrame extends JDialog {
+
     private static final long serialVersionUID = 1L;
+
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color PROSEGUR_BLACK = new Color(25, 25, 25);
+    private static final Color BG_LIGHT = new Color(245, 245, 245);
 
     private final ControladorMotorizado controlador;
     private final JTable tablaHistorial;
@@ -21,83 +27,107 @@ public class HistorialEntregaFrame extends JFrame {
     private final JComboBox<String> comboBanco;
     private final List<HistorialEntrega> historialCompleto;
 
-    public HistorialEntregaFrame(ControladorMotorizado controlador) {
+    public HistorialEntregaFrame(JFrame parent, ControladorMotorizado controlador) {
+
+        super(parent, "📜 Historial de Entregas", true);
+
         this.controlador = controlador != null ? controlador : new ControladorMotorizado();
         this.historialCompleto = new ArrayList<>();
         recargarHistorial();
 
-        setTitle("Historial de Entregas");
-        setSize(780, 480);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(1100, 600);
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        contentPane.setBackground(BG_LIGHT);
+        contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
         setContentPane(contentPane);
 
-        JPanel filtrosPanel = new JPanel(new GridBagLayout());
+     
+        JPanel header = new JPanel(new GridBagLayout());
+        header.setBackground(PROSEGUR_YELLOW);
+        header.setBorder(new EmptyBorder(10, 10, 10, 10));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 10, 5, 10);
         gbc.anchor = GridBagConstraints.WEST;
 
-        JLabel lblMensajero = new JLabel("Mensajero:");
-        gbc.gridx = 0;
+        JLabel lblTitulo = new JLabel("📦 Historial de Entregas");
+        lblTitulo.setFont(new Font("Montserrat", Font.BOLD, 18));
+        lblTitulo.setForeground(PROSEGUR_BLACK);
+
+        gbc.gridx = 0; 
         gbc.gridy = 0;
-        filtrosPanel.add(lblMensajero, gbc);
+        gbc.gridwidth = 1;
+        header.add(lblTitulo, gbc);
+
+      
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        JLabel lblMensajero = new JLabel("👤 Mensajero:");
+        lblMensajero.setFont(new Font("Montserrat", Font.BOLD, 13));
+        header.add(lblMensajero, gbc);
 
         comboMensajero = new JComboBox<>();
         gbc.gridx = 1;
-        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        filtrosPanel.add(comboMensajero, gbc);
+        gbc.weightx = 1;
+        header.add(comboMensajero, gbc);
 
-        JLabel lblBanco = new JLabel("Banco:");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
+       
+        gbc.gridx = 2;
         gbc.fill = GridBagConstraints.NONE;
-        filtrosPanel.add(lblBanco, gbc);
+        gbc.weightx = 0;
+        JLabel lblBanco = new JLabel("🏦 Banco:");
+        lblBanco.setFont(new Font("Montserrat", Font.BOLD, 13));
+        header.add(lblBanco, gbc);
 
         comboBanco = new JComboBox<>();
-        gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridx = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        filtrosPanel.add(comboBanco, gbc);
+        gbc.weightx = 0.5;
+        header.add(comboBanco, gbc);
 
-        JButton btnAplicar = new JButton("Aplicar filtros");
-        gbc.gridx = 0;
-        gbc.gridy = 2;
+      
+        JButton btnAplicar = new JButton("🔍 Aplicar");
+        stylizeBtn(btnAplicar, PROSEGUR_BLACK, PROSEGUR_YELLOW);
+        gbc.gridx = 4;
+        gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0;
-        filtrosPanel.add(btnAplicar, gbc);
+        header.add(btnAplicar, gbc);
 
-        JButton btnLimpiar = new JButton("Limpiar filtros");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        filtrosPanel.add(btnLimpiar, gbc);
+       
+        JButton btnLimpiar = new JButton("🧹 Limpiar");
+        stylizeBtn(btnLimpiar, new Color(60, 60, 60), Color.WHITE);
+        gbc.gridx = 5;
+        header.add(btnLimpiar, gbc);
 
-        contentPane.add(filtrosPanel, BorderLayout.NORTH);
+        contentPane.add(header, BorderLayout.NORTH);
 
+    
         modeloTabla = new DefaultTableModel(new Object[]{
-                "Fecha", "Mensajero", "Cliente", "Banco", "Dirección", "Estado"
+                "📅 Fecha", "👤 Mensajero", "🧑‍💼 Cliente",
+                "🏦 Banco", "📍 Dirección", "✔ Estado"
         }, 0) {
-            private static final long serialVersionUID = 1L;
-
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
+
         tablaHistorial = new JTable(modeloTabla);
-        tablaHistorial.setFillsViewportHeight(true);
-        tablaHistorial.setAutoCreateRowSorter(true);
+        tablaHistorial.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        tablaHistorial.setRowHeight(23);
+
+        tablaHistorial.getTableHeader().setFont(new Font("Montserrat", Font.BOLD, 14));
+        tablaHistorial.getTableHeader().setBackground(PROSEGUR_BLACK);
+        tablaHistorial.getTableHeader().setForeground(PROSEGUR_YELLOW);
 
         JScrollPane scrollPane = new JScrollPane(tablaHistorial);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
         contentPane.add(scrollPane, BorderLayout.CENTER);
 
+       
         btnAplicar.addActionListener(e -> aplicarFiltros());
         btnLimpiar.addActionListener(e -> limpiarFiltros());
 
@@ -105,36 +135,32 @@ public class HistorialEntregaFrame extends JFrame {
         refrescarTabla(historialCompleto);
     }
 
+
+    private void stylizeBtn(JButton btn, Color bg, Color fg) {
+        btn.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setFocusPainted(false);
+        btn.setBorder(new EmptyBorder(6, 12, 6, 12));
+    }
+
+   
     private void cargarOpcionesFiltros() {
         Set<String> mensajeros = new LinkedHashSet<>();
         Set<String> bancos = new LinkedHashSet<>();
-        boolean existeMensajeroVacio = false;
-        boolean existeBancoVacio = false;
 
         mensajeros.add("Todos");
         bancos.add("Todos");
 
         for (HistorialEntrega entrada : historialCompleto) {
             if (entrada == null) continue;
-            String displayMensajero = displayOrDefault(entrada.getMensajeroDisplay(), "");
-            if (!displayMensajero.isEmpty()) {
-                mensajeros.add(displayMensajero);
-            } else {
-                existeMensajeroVacio = true;
-            }
-            String banco = displayOrDefault(entrada.getBanco(), "");
-            if (!banco.isEmpty()) {
-                bancos.add(banco);
-            } else {
-                existeBancoVacio = true;
-            }
-        }
 
-        if (existeMensajeroVacio) {
-            mensajeros.add("Sin mensajero");
-        }
-        if (existeBancoVacio) {
-            bancos.add("Sin banco registrado");
+            String mensajero = displayOrDefault(entrada.getMensajeroDisplay(), "");
+            if (!mensajero.isEmpty()) mensajeros.add(mensajero);
+
+            String banco = displayOrDefault(entrada.getBanco(), "");
+            if (!banco.isEmpty()) bancos.add(banco);
         }
 
         comboMensajero.setModel(new DefaultComboBoxModel<>(mensajeros.toArray(new String[0])));
@@ -142,24 +168,21 @@ public class HistorialEntregaFrame extends JFrame {
     }
 
     private void aplicarFiltros() {
-        String mensajeroSeleccionado = (String) comboMensajero.getSelectedItem();
-        String bancoSeleccionado = (String) comboBanco.getSelectedItem();
+        String mensajeroSel = (String) comboMensajero.getSelectedItem();
+        String bancoSel = (String) comboBanco.getSelectedItem();
 
         List<HistorialEntrega> filtrado = new ArrayList<>();
+
         for (HistorialEntrega entrada : historialCompleto) {
             if (entrada == null) continue;
 
-            boolean coincideMensajero = mensajeroSeleccionado == null
-                    || "Todos".equals(mensajeroSeleccionado)
-                    || displayOrDefault(entrada.getMensajeroDisplay(), "Sin mensajero").equals(mensajeroSeleccionado);
+            boolean matchMensajero = mensajeroSel.equals("Todos")
+                    || displayOrDefault(entrada.getMensajeroDisplay(), "Sin mensajero").equals(mensajeroSel);
 
-            String bancoEntrada = displayOrDefault(entrada.getBanco(), "Sin banco registrado");
-            boolean coincideBanco = bancoSeleccionado == null || "Todos".equals(bancoSeleccionado)
-                    || bancoEntrada.equalsIgnoreCase(bancoSeleccionado);
+            boolean matchBanco = bancoSel.equals("Todos")
+                    || displayOrDefault(entrada.getBanco(), "Sin banco").equalsIgnoreCase(bancoSel);
 
-            if (coincideMensajero && coincideBanco) {
-                filtrado.add(entrada);
-            }
+            if (matchMensajero && matchBanco) filtrado.add(entrada);
         }
 
         refrescarTabla(filtrado);
@@ -171,23 +194,20 @@ public class HistorialEntregaFrame extends JFrame {
         refrescarTabla(historialCompleto);
     }
 
+  
     private void refrescarTabla(List<HistorialEntrega> entradas) {
         modeloTabla.setRowCount(0);
+
         for (HistorialEntrega entrada : entradas) {
             if (entrada == null) continue;
 
-            String fecha = displayOrDefault(entrada.getFecha(), "Sin fecha");
-            String mensajero = displayOrDefault(entrada.getMensajeroDisplay(), "Sin mensajero");
-            String cliente = displayOrDefault(entrada.getCliente(), "Sin cliente registrado");
-            String banco = displayOrDefault(entrada.getBanco(), "Sin banco registrado");
-            String direccion = displayOrDefault(entrada.getDireccion(), "Sin dirección registrada");
             modeloTabla.addRow(new Object[]{
-                    fecha,
-                    mensajero,
-                    cliente,
-                    banco,
-                    direccion,
-                    entrada.isConforme() ? "Conforme" : "Observado"
+                    displayOrDefault(entrada.getFecha(), "Sin fecha"),
+                    displayOrDefault(entrada.getMensajeroDisplay(), "Sin mensajero"),
+                    displayOrDefault(entrada.getCliente(), "Sin cliente"),
+                    displayOrDefault(entrada.getBanco(), "Sin banco"),
+                    displayOrDefault(entrada.getDireccion(), "Sin dirección"),
+                    entrada.isConforme() ? "✔ Conforme" : "❗ Observado"
             });
         }
     }
@@ -197,11 +217,9 @@ public class HistorialEntregaFrame extends JFrame {
         historialCompleto.addAll(controlador.obtenerHistorialEntregas());
     }
 
-    private String displayOrDefault(String value, String defaultText) {
-        if (value == null) {
-            return defaultText;
-        }
-        String trimmed = value.trim();
-        return trimmed.isEmpty() ? defaultText : trimmed;
+    private String displayOrDefault(String val, String def) {
+        if (val == null) return def;
+        val = val.trim();
+        return val.isEmpty() ? def : val;
     }
 }

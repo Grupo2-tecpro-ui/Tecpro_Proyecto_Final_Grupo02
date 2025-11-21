@@ -47,16 +47,11 @@ public class Motorizado {
 		 this.fechaTarjetas = fechaTarjetas;
 		this.idSede = idSede;
 	}
-	   public Motorizado(int id, String dni, String nombres, String apellidos,
+public Motorizado(int id, String dni, String nombres, String apellidos,
                String celular, String placa, String marca, String modelo,
                String brevete, String vencBrevete, boolean soat,
                String estado, String fechaIngreso, String contrato, int idSede) {
- this(id, dni, nombres, apellidos, celular, placa, marca, modelo,
-      brevete, vencBrevete, soat, estado, fechaIngreso, contrato,
-      0,      // tarjetasAsignadas por defecto
-      false,  // diaRuta por defecto
-      null,   // fechaTarjetas por defecto
-      idSede);
+ this(id, dni, nombres, apellidos, celular, placa, marca, modelo,brevete, vencBrevete, soat, estado, fechaIngreso, contrato,0,false,null,idSede);
 }
 	 public String getFechaTarjetas() { return fechaTarjetas; }
 	 public void setFechaTarjetas(String fechaTarjetas) { this.fechaTarjetas = fechaTarjetas; }

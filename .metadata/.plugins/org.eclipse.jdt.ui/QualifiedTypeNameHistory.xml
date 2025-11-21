@@ -2,15 +2,25 @@
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="GUI.MainMenu"/>
     <fullyQualifiedTypeName name="GUI.EditarMotorizado"/>
-    <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
     <fullyQualifiedTypeName name="Controlador.MotorizadoNoEncontrado"/>
     <fullyQualifiedTypeName name="Controlador.CartasInsuficientes"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="java.util.ArrayList"/>
-    <fullyQualifiedTypeName name="GUI.Entrega"/>
-    <fullyQualifiedTypeName name="Modelado.Entrega"/>
     <fullyQualifiedTypeName name="javax.swing.JFrame"/>
     <fullyQualifiedTypeName name="GUI.HistorialEntregaFrame"/>
     <fullyQualifiedTypeName name="Modelado.HistorialEntrega"/>
     <fullyQualifiedTypeName name="GUI.Autoresgui"/>
+    <fullyQualifiedTypeName name="GUI.ListadoMotorizadoFrame"/>
+    <fullyQualifiedTypeName name="GUI.Entrega"/>
+    <fullyQualifiedTypeName name="javax.swing.border.CompoundBorder"/>
+    <fullyQualifiedTypeName name="java.sql.SQLClientInfoException"/>
+    <fullyQualifiedTypeName name="sun.jvm.hotspot.oops.java_lang_Class"/>
+    <fullyQualifiedTypeName name="java.sql.Connection"/>
+    <fullyQualifiedTypeName name="repositorio.Conexion"/>
+    <fullyQualifiedTypeName name="repositorio.DetalleEntregaDAO"/>
+    <fullyQualifiedTypeName name="repositorio.EntregaDAO"/>
+    <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
+    <fullyQualifiedTypeName name="Modelado.Motorizado"/>
+    <fullyQualifiedTypeName name="repositorio.MotorizadoDAO"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="Modelado.Entrega"/>
 </qualifiedTypeNameHistroy>

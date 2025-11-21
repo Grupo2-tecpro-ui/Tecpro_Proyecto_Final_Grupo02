@@ -1,0 +1,194 @@
+package GUI;
+
+import javax.swing.*;
+import java.awt.*;
+import Controlador.ControladorMotorizado;
+import Controlador.MotorizadoNoEncontrado;
+import Controlador.CartasInsuficientes;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Entrega extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+
+    private JTextField txtDni;
+    private JTextField txtCantidad;
+    private JSpinner spinnerFecha;
+    private JButton btnRegistrar, btnCancelar;
+
+    private ControladorMotorizado controlador;
+    private MainMenu parent;   // <-- para refrescar dashboard solo si existe
+
+
+    // ============================================================
+    //   CONSTRUCTOR PRINCIPAL (desde MainMenu, refresca dashboard)
+    // ============================================================
+    public Entrega(MainMenu parent, ControladorMotorizado controlador, String prefillDni) {
+        this.parent = parent;
+        this.controlador = controlador;
+        inicializarGUI(prefillDni);
+    }
+
+    // ==========================================================================
+    //   SOBRECARGA (desde ListadoMotorizadoFrame o cualquier otra parte)
+    //   Compatible con tu código existente:
+    //   Entrega ef = new Entrega(this.controlador, dniSeleccionado);
+    // ==========================================================================
+    /**
+     * @wbp.parser.constructor
+     */
+    public Entrega(ControladorMotorizado controlador, String prefillDni) {
+    	setAlwaysOnTop(true);
+        this.parent = null; // No refresca dashboard
+        this.controlador = controlador;
+        inicializarGUI(prefillDni);
+    }
+
+
+    // ============================================================
+    //   MÉTODO QUE DIBUJA TODA LA INTERFAZ UNA SOLA VEZ
+    // ============================================================
+    private void inicializarGUI(String prefillDni) {
+
+        setTitle("Registrar Entrega");
+        setSize(406, 222);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(null);
+
+        JLabel lblDni = new JLabel("DNI:");
+        lblDni.setBounds(20, 15, 120, 25);
+        getContentPane().add(lblDni);
+
+        txtDni = new JTextField(prefillDni != null ? prefillDni : "");
+        txtDni.setEditable(false);
+        txtDni.setBounds(140, 15, 200, 25);
+        getContentPane().add(txtDni);
+
+        JLabel lblCantidad = new JLabel("Cantidad entregada:");
+        lblCantidad.setBounds(20, 51, 120, 25);
+        getContentPane().add(lblCantidad);
+
+        txtCantidad = new JTextField();
+        txtCantidad.setBounds(140, 50, 200, 25);
+        getContentPane().add(txtCantidad);
+
+        JLabel lblFecha = new JLabel("Fecha (YYYY-MM-DD):");
+        lblFecha.setBounds(20, 87, 120, 25);
+        getContentPane().add(lblFecha);
+
+        SpinnerDateModel modelDate = new SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.DAY_OF_MONTH);
+        spinnerFecha = new JSpinner(modelDate);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFecha, "yyyy-MM-dd");
+        spinnerFecha.setEditor(editor);
+        spinnerFecha.setBounds(140, 85, 200, 25);
+        getContentPane().add(spinnerFecha);
+
+        btnRegistrar = new JButton("Registrar");
+        btnRegistrar.setBounds(60, 130, 120, 28);
+        getContentPane().add(btnRegistrar);
+
+        btnCancelar = new JButton("Cancelar");
+        btnCancelar.setBounds(200, 130, 120, 28);
+        getContentPane().add(btnCancelar);
+
+        btnCancelar.addActionListener(e -> dispose());
+
+        // Acción de registrar entrega
+        btnRegistrar.addActionListener(e -> registrarEntrega());
+
+        // Si se abrió desde MainMenu → refrescar dashboard al cerrar
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                if (parent != null) parent.refrescarDashboard();
+            }
+        });
+    }
+
+
+    // ============================================================
+    //   LÓGICA PARA REGISTRAR ENTREGAS
+    // ============================================================
+    private void registrarEntrega() {
+
+        String dni = txtDni.getText().trim();
+        String cantidadStr = txtCantidad.getText().trim();
+
+        java.util.Date fechaUtil = (java.util.Date) spinnerFecha.getValue();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String fechaStr = sdf.format(fechaUtil);
+
+        int requestedCantidad;
+        try {
+            requestedCantidad = Integer.parseInt(cantidadStr);
+            if (requestedCantidad <= 0) {
+                JOptionPane.showMessageDialog(this, "Cantidad debe ser mayor que 0.");
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Cantidad inválida. Debe ser entero.");
+            return;
+        }
+
+        // Formulario dinámico para detalles de tarjetas
+        List<Modelado.DetalleEntrega> detalles = new ArrayList<>();
+
+        for (int i = 1; i <= requestedCantidad; i++) {
+
+            JTextField txtCliente = new JTextField();
+            JTextField txtBanco = new JTextField();
+            JTextField txtDireccion = new JTextField();
+            JCheckBox chkConforme = new JCheckBox("Conforme");
+
+            JPanel panelForm = new JPanel(new GridLayout(0, 1));
+            panelForm.add(new JLabel("Tarjeta #" + i));
+            panelForm.add(new JLabel("Cliente:"));
+            panelForm.add(txtCliente);
+            panelForm.add(new JLabel("Banco:"));
+            panelForm.add(txtBanco);
+            panelForm.add(new JLabel("Dirección:"));
+            panelForm.add(txtDireccion);
+            panelForm.add(chkConforme);
+
+            int option = JOptionPane.showConfirmDialog(
+                    this, panelForm, "Detalles tarjeta " + i,
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (option != JOptionPane.OK_OPTION) {
+                int c = JOptionPane.showConfirmDialog(this,
+                        "¿Cancelar registro completo?",
+                        "Confirmar", JOptionPane.YES_NO_OPTION);
+
+                if (c == JOptionPane.YES_OPTION) return;
+                else {
+                    i--; // repetir tarjeta
+                    continue;
+                }
+            }
+
+            detalles.add(new Modelado.DetalleEntrega(
+                    txtCliente.getText().trim(),
+                    txtBanco.getText().trim(),
+                    txtDireccion.getText().trim(),
+                    chkConforme.isSelected()
+            ));
+        }
+
+        // Enviar al controlador
+        try {
+            controlador.registrarEntrega(dni, requestedCantidad, fechaStr, detalles);
+            JOptionPane.showMessageDialog(this, "Entrega registrada correctamente.");
+            dispose();
+        } catch (MotorizadoNoEncontrado | CartasInsuficientes ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, "No se registró: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
+        }
+    }
+}

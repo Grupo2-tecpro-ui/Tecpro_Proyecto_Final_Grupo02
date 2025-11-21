@@ -1,301 +1,281 @@
 package GUI;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.SpinnerDateModel;
 import java.awt.*;
+import java.util.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import Controlador.ControladorMotorizado;
 import Modelado.Motorizado;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
-import java.text.SimpleDateFormat;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
 
-public class RegistroMotorizadoFrame  extends JFrame implements ActionListener {
-	
-	private static final long serialVersionUID = 1L;
-	private JTextField txtDni, txtNombres, txtApellidos, txtCelular, txtPlaca, txtMarca, txtModelo;
-    private JTextField txtVencBrevete, txtFechaIngreso, txtSede, txtTarjetas;
+    private static final long serialVersionUID = 1L;
+
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color BG_LIGHT = new Color(245, 245, 245);
+    private static final Color TEXT_DARK = new Color(20, 20, 20);
+
+    private JTextField txtDni, txtNombres, txtApellidos, txtCelular, txtPlaca;
+    private JTextField txtMarca, txtModelo, txtVencBrevete, txtFechaIngreso;
+    private JTextField txtBrevete, txtTarjetas;
+
     private JCheckBox chkSoat;
-    private JCheckBox chkDiaRuta;
-   private JButton btnGuardar, btnLimpiar;
- 
-   private JSpinner spinnerFechaTarjetas;
- 
-    private JComboBox<String> cboEstado; 
-    private JTextField txtBrevete;   
-    private JComboBox<String>  cboContrato;
+    private JComboBox<String> cboEstado, cboContrato, cboSede;
+    private JSpinner spinnerFechaTarjetas;
+
+    private JButton btnGuardar, btnLimpiar, btnEnlistar;
 
     private ControladorMotorizado controlador;
-    private JButton btnEnlistar;
-    private JLabel lblRegistraAlMotorizado;
 
- 
-    
-    public RegistroMotorizadoFrame(ControladorMotorizado controlador) {
-    	
+    public RegistroMotorizadoFrame(JFrame parent, ControladorMotorizado controlador) {
+
+        super(parent, "Registro de Motorizado", false);  // ← YA NO ES MODAL
+
         this.controlador = controlador;
 
-        setTitle("Registro de Motorizado");			
-        setSize(600, 720);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        
-        JPanel panel = new JPanel();
-        panel.setLayout(null);
+        setSize(600, 730); 
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        // Campos iniciales
-        JLabel label = new JLabel("DNI:");
-        label.setBounds(79, 49, 168, 23);
-        panel.add(label);
-        txtDni = new JTextField();
-        txtDni.setBounds(257, 49, 237, 23);
-        panel.add(txtDni);
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(BG_LIGHT);
+        setContentPane(root);
 
-        JLabel label_1 = new JLabel("Nombres:");
-        label_1.setBounds(79, 82, 168, 23);
-        panel.add(label_1);
-        txtNombres = new JTextField();
-        txtNombres.setBounds(257, 82, 237, 23);
-        panel.add(txtNombres);
+      
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(PROSEGUR_YELLOW);
+        header.setBorder(new EmptyBorder(12, 20, 12, 20));
 
-        JLabel label_2 = new JLabel("Apellidos:");
-        label_2.setBounds(79, 116, 190, 23);
-        panel.add(label_2);
-        txtApellidos = new JTextField();
-        txtApellidos.setBounds(257, 115, 237, 23);
-        panel.add(txtApellidos);
+        JLabel titulo = new JLabel("🏍️ Registro de Motorizado");
+        titulo.setFont(new Font("Montserrat", Font.BOLD, 22));
+        titulo.setForeground(TEXT_DARK);
 
-        JLabel label_3 = new JLabel("Celular trabajo:");
-        label_3.setBounds(79, 150, 168, 23);
-        panel.add(label_3);
-        txtCelular = new JTextField();
-        txtCelular.setBounds(257, 148, 237, 23);
-        panel.add(txtCelular);
+        header.add(titulo, BorderLayout.CENTER);
+        root.add(header, BorderLayout.NORTH);
 
-        JLabel label_4 = new JLabel("Placa moto:");
-        label_4.setBounds(79, 184, 190, 23);
-        panel.add(label_4);
-        txtPlaca = new JTextField();
-        txtPlaca.setBounds(257, 181, 237, 23);
-        panel.add(txtPlaca);
+   
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        form.setBorder(new EmptyBorder(20, 15, 20, 15));
+        root.add(form, BorderLayout.CENTER);
 
-        JLabel label_5 = new JLabel("Marca moto:");
-        label_5.setBounds(79, 218, 190, 23);
-        panel.add(label_5);
-        txtMarca = new JTextField();
-        txtMarca.setBounds(257, 214, 237, 23);
-        panel.add(txtMarca);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel label_6 = new JLabel("Modelo moto:");
-        label_6.setBounds(79, 248, 219, 23);
-        panel.add(label_6);
-        txtModelo = new JTextField();
-        txtModelo.setBounds(257, 247, 237, 23);
-        panel.add(txtModelo);
+        Font fontLabel = new Font("Montserrat", Font.BOLD, 13);
 
-        // Nuevos campos
-        JLabel label_7 = new JLabel("Brevete categoría:");
-        label_7.setBounds(79, 280, 196, 23);
-        panel.add(label_7);
-        txtBrevete = new JTextField();
-        txtBrevete.setBounds(257, 280, 237, 23);
-        panel.add(txtBrevete);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
-        JLabel label_8 = new JLabel("Venc. brevete (YYYY-MM-DD):");
-        label_8.setBounds(79, 313, 168, 23);
-        panel.add(label_8);
-        txtVencBrevete = new JTextField("2026-12-31");
-        txtVencBrevete.setBounds(257, 313, 237, 23);
-        panel.add(txtVencBrevete);
+        txtDni = addRow(form, gbc, "🪪 DNI:", fontLabel);
+        txtNombres = addRow(form, gbc, "👤 Nombres:", fontLabel);
+        txtApellidos = addRow(form, gbc, "👥 Apellidos:", fontLabel);
+        txtCelular = addRow(form, gbc, "📱 Celular trabajo:", fontLabel);
+        txtPlaca = addRow(form, gbc, "🏍️ Placa moto:", fontLabel);
+        txtMarca = addRow(form, gbc, "🏷️ Marca moto:", fontLabel);
+        txtModelo = addRow(form, gbc, "📌 Modelo moto:", fontLabel);
+        txtBrevete = addRow(form, gbc, "🪪 Brevete categoría:", fontLabel);
 
-        JLabel label_9 = new JLabel("SOAT:");
-        label_9.setBounds(79, 346, 161, 23);
-        panel.add(label_9);
-        chkSoat = new JCheckBox("SOAT vigente");
-        chkSoat.setBounds(257, 346, 237, 23);
-        panel.add(chkSoat);
+        txtVencBrevete = addRow(form, gbc, "📅 Venc. Brevete:", fontLabel);
+        txtVencBrevete.setText("2026-12-31");
 
-        JLabel label_10 = new JLabel("Estado:");
-        label_10.setBounds(79, 379, 178, 23);
-        panel.add(label_10);
+       
+        addLabel(form, gbc, "🛡️ SOAT vigente:", fontLabel);
+        chkSoat = new JCheckBox();
+        chkSoat.setBackground(Color.WHITE);
+        form.add(chkSoat, gbc);
+        gbc.gridy++;
+
+      
+        addLabel(form, gbc, "⚙️ Estado:", fontLabel);
         cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
-        cboEstado.setBounds(257, 379, 237, 23);
-        panel.add(cboEstado);
+        form.add(cboEstado, gbc);
+        gbc.gridy++;
 
-        JLabel label_11 = new JLabel("Fecha ingreso (YYYY-MM-DD):");
-        label_11.setBounds(79, 412, 190, 23);
-        panel.add(label_11);
-        txtFechaIngreso = new JTextField("2025-01-01");
-        txtFechaIngreso.setBounds(257, 412, 237, 23);
-        panel.add(txtFechaIngreso);
+        
+        txtFechaIngreso = addRow(form, gbc, "📆 Fecha ingreso:", fontLabel);
+        txtFechaIngreso.setText("2025-01-01");
 
-        JLabel label_12 = new JLabel("Tipo contrato:");
-        label_12.setBounds(79, 445, 168, 23);
-        panel.add(label_12);
+     
+        addLabel(form, gbc, "📑 Tipo contrato:", fontLabel);
         cboContrato = new JComboBox<>(new String[]{"Express", "Tiempo completo", "Medio tiempo"});
-        cboContrato.setBounds(257, 445, 237, 23);
-        panel.add(cboContrato);
+        form.add(cboContrato, gbc);
+        gbc.gridy++;
 
-        JLabel label_13 = new JLabel("ID Sede:");
-        label_13.setBounds(79, 479, 183, 23);
-        panel.add(label_13);
-        txtSede = new JTextField("1");
-        txtSede.setBounds(257, 478, 237, 23);
-        panel.add(txtSede);
+     
+        addLabel(form, gbc, "📍 Sede:", fontLabel);
+        cboSede = new JComboBox<>(new String[]{
+                "1 - Miraflores",
+                "2 - Surco",
+                "3 - Tambo Norte"
+        });
+        form.add(cboSede, gbc);
+        gbc.gridy++;
 
-        JLabel label_14 = new JLabel("Cantidad de tarjetas:");
-        label_14.setBounds(79, 513, 183, 23);
-        panel.add(label_14);
-        txtTarjetas = new JTextField("0");
-        txtTarjetas.setBounds(257, 512, 237, 23);
-        panel.add(txtTarjetas);
-        
-        chkDiaRuta = new JCheckBox("Ruta del día");
-        chkDiaRuta.setBounds(79, 19, 95, 23);
-        panel.add(chkDiaRuta);
-        
-        JLabel labelFechaTarjetas = new JLabel("Fecha de ruta (YYYY-MM-DD):");
-        labelFechaTarjetas.setBounds(79, 542, 149, 23); // ajustar posiciones según tu layout
-        panel.add(labelFechaTarjetas);
-        
-        SpinnerDateModel modelDate = new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH);
-        spinnerFechaTarjetas = new JSpinner(modelDate);
-        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFechaTarjetas, "yyyy-MM-dd");
-        spinnerFechaTarjetas.setEditor(editor);
-        spinnerFechaTarjetas.setBounds(257, 542, 237, 23);
-        panel.add(spinnerFechaTarjetas);
-        // Botones
-        btnGuardar = new JButton("Guardar (Adicionar al registro)");
-        btnGuardar.setBounds(83, 586, 186, 23);
-        btnLimpiar = new JButton("Limpiar");
-        btnLimpiar.setBounds(304, 586, 190, 23);
-        panel.add(btnGuardar);
-        panel.add(btnLimpiar);
+    
+        txtTarjetas = addRow(form, gbc, "📦 Tarjetas asignadas:", fontLabel);
+        txtTarjetas.setText("0");
 
-        getContentPane().add(panel);
-        
-        btnEnlistar = new JButton("Reportar");
-        btnEnlistar.addActionListener(this);
-        btnEnlistar.setBounds(181, 631, 186, 23);
-        panel.add(btnEnlistar);
-        
-        lblRegistraAlMotorizado = new JLabel("REGISTRA AL MOTORIZADO");
-        lblRegistraAlMotorizado.setFont(new Font("Tahoma", Font.BOLD, 18));
-        lblRegistraAlMotorizado.setBounds(252, 16, 286, 23);
-        panel.add(lblRegistraAlMotorizado);
+      
+        addLabel(form, gbc, "🚚 Fecha ruta:", fontLabel);
+        spinnerFechaTarjetas = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
+        spinnerFechaTarjetas.setEditor(new JSpinner.DateEditor(spinnerFechaTarjetas, "yyyy-MM-dd"));
+        form.add(spinnerFechaTarjetas, gbc);
+        gbc.gridy++;
 
-        // Eventos
+       
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttons.setBackground(BG_LIGHT);
+
+        btnGuardar = new JButton("💾 Guardar");
+        btnLimpiar = new JButton("🧹 Limpiar");
+        btnEnlistar = new JButton("📋 Ver listado");
+
+        stylizeButton(btnGuardar, PROSEGUR_YELLOW, TEXT_DARK);
+        stylizeButton(btnLimpiar, TEXT_DARK, Color.WHITE);
+        stylizeButton(btnEnlistar, new Color(45, 45, 45), PROSEGUR_YELLOW);
+
+        buttons.add(btnGuardar);
+        buttons.add(btnLimpiar);
+        buttons.add(btnEnlistar);
+
+        root.add(buttons, BorderLayout.SOUTH);
+
+     
         btnGuardar.addActionListener(e -> guardar());
         btnLimpiar.addActionListener(e -> limpiar());
+        btnEnlistar.addActionListener(this);
     }
+
+
+
+    private void stylizeButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(new Font("Montserrat", Font.BOLD, 14));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+    }
+
+    private JTextField addRow(JPanel form, GridBagConstraints gbc, String label, Font font) {
+
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(font);
+        lbl.setForeground(TEXT_DARK);
+
+        gbc.gridx = 0;
+        form.add(lbl, gbc);
+
+        JTextField txt = new JTextField();
+        txt.setFont(new Font("Montserrat", Font.PLAIN, 14));
+
+        gbc.gridx = 1;
+        form.add(txt, gbc);
+
+        gbc.gridy++;
+        return txt;
+    }
+
+    private void addLabel(JPanel form, GridBagConstraints gbc, String text, Font font) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(font);
+        lbl.setForeground(TEXT_DARK);
+
+        gbc.gridx = 0;
+        form.add(lbl, gbc);
+
+        gbc.gridx = 1;
+    }
+
+    
 
     private void guardar() {
         try {
-           
+            if (!chkSoat.isSelected()) {
+                JOptionPane.showMessageDialog(this, "No se puede registrar sin SOAT vigente.");
+                return;
+            }
+
             String dni = txtDni.getText().trim();
             if (!dni.matches("\\d{8}")) {
-                JOptionPane.showMessageDialog(this, "DNI inválido: debe contener exactamente 8 dígitos numéricos.");
-                return;
-            }
-            if (repositorio.InMemoryDatabase.existeDni(dni)) {
-                JOptionPane.showMessageDialog(this, "El DNI ya existe. No se permiten duplicados.");
+                JOptionPane.showMessageDialog(this, "El DNI debe tener 8 dígitos.");
                 return;
             }
 
-            
-            int tarjetas;
-            try {
-                tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
-                if (tarjetas < 0) {
-                    JOptionPane.showMessageDialog(this, "Cantidad de tarjetas no puede ser negativa.");
-                    return;
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Cantidad de tarjetas inválida (debe ser número).");
+            if (controlador.existeDni(dni)) {
+                JOptionPane.showMessageDialog(this, "Este DNI ya está registrado.");
                 return;
             }
 
-            // parsear idSede
-            int idSede;
-            try {
-                idSede = Integer.parseInt(txtSede.getText().trim());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID Sede inválido (debe ser número).");
-                return;
-            }
+            int tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
 
-            // obtener fecha del spinner y formatear a String YYYY-MM-DD
+            String sedeFull = (String) cboSede.getSelectedItem();
+            int idSede = Integer.parseInt(sedeFull.substring(0, 1));
+
             java.util.Date fechaUtil = (java.util.Date) spinnerFechaTarjetas.getValue();
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            String fechaTarjetasStr = sdf.format(fechaUtil);
+            String fechaRuta = sdf.format(fechaUtil);
 
-            // crear el objeto Motorizado (usa 'dni' validado)
             Motorizado m = new Motorizado(
-                0,
-                dni,
-                txtNombres.getText().trim(),
-                txtApellidos.getText().trim(),
-                txtCelular.getText().trim(),
-                txtPlaca.getText().trim(),
-                txtMarca.getText().trim(),
-                txtModelo.getText().trim(),
-                txtBrevete.getText().trim(),
-                txtVencBrevete.getText().trim(),
-                chkSoat.isSelected(),
-                (String) cboEstado.getSelectedItem(),
-                txtFechaIngreso.getText().trim(),
-                (String) cboContrato.getSelectedItem(),
-                tarjetas,
-                chkDiaRuta.isSelected(),
-                fechaTarjetasStr,
-                idSede
+                    0,
+                    dni,
+                    txtNombres.getText().trim(),
+                    txtApellidos.getText().trim(),
+                    txtCelular.getText().trim(),
+                    txtPlaca.getText().trim(),
+                    txtMarca.getText().trim(),
+                    txtModelo.getText().trim(),
+                    txtBrevete.getText().trim(),
+                    txtVencBrevete.getText().trim(),
+                    true,
+                    (String) cboEstado.getSelectedItem(),
+                    txtFechaIngreso.getText().trim(),
+                    (String) cboContrato.getSelectedItem(),
+                    tarjetas,
+                    false,
+                    fechaRuta,
+                    idSede
             );
 
-            // guardar
-            if (this.controlador != null) {
-                this.controlador.guardarMotorizado(m);
-            } else {
-                new ControladorMotorizado().guardarMotorizado(m);
-            }
-
+            controlador.guardarMotorizado(m);
             limpiar();
-            JOptionPane.showMessageDialog(this, "Motorizado guardado correctamente.");
+            JOptionPane.showMessageDialog(this, "Motorizado registrado correctamente.");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al guardar motorizado: " + e.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
     }
+
     private void limpiar() {
-    	txtDni.setText("");
-    	txtNombres.setText("");
-    	txtApellidos.setText("");
-    	txtCelular.setText("");
-    	txtPlaca.setText("");
-    	txtMarca.setText("");
-    	txtModelo.setText("");
-    	txtBrevete.setText("");
-    	txtVencBrevete.setText("2026-12-31");
-    	chkSoat.setSelected(false);
-    	cboEstado.setSelectedIndex(0);
-    	txtFechaIngreso.setText("2025-01-01");
-    	cboContrato.setSelectedIndex(0);
-    	txtSede.setText("1");
-    	txtTarjetas.setText("0");
-    	chkDiaRuta.setSelected(false);
+        txtDni.setText("");
+        txtNombres.setText("");
+        txtApellidos.setText("");
+        txtCelular.setText("");
+        txtPlaca.setText("");
+        txtMarca.setText("");
+        txtModelo.setText("");
+        txtBrevete.setText("");
+        txtVencBrevete.setText("2026-12-31");
+        txtFechaIngreso.setText("2025-01-01");
+        chkSoat.setSelected(false);
+        cboEstado.setSelectedIndex(0);
+        cboContrato.setSelectedIndex(0);
+        cboSede.setSelectedIndex(0);
+        txtTarjetas.setText("0");
     }
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnEnlistar) {
-			do_btnEnlistar_actionPerformed(e);
-		}
-	}
-	protected void do_btnEnlistar_actionPerformed(ActionEvent e) {
-		Controlador.ControladorMotorizado ctrl = this.controlador != null ? this.controlador : new ControladorMotorizado();
-	    ListadoMotorizadoFrame listado = new ListadoMotorizadoFrame(ctrl);
-	    listado.setVisible(true);
-		
-	}
-	}
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnEnlistar) {
+            new ListadoMotorizadoFrame(
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    controlador
+            ).setVisible(true);
+        }
+    }
+}

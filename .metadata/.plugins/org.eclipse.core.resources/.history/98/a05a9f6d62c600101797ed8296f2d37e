@@ -1,0 +1,299 @@
+package GUI;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.SpinnerDateModel;
+import java.awt.*;
+import java.util.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import Controlador.ControladorMotorizado;
+import Modelado.Motorizado;
+
+public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color PROSEGUR_BLACK = new Color(18, 18, 18);
+    private static final Color BG_LIGHT = new Color(245, 245, 245);
+
+    private JTextField txtDni, txtNombres, txtApellidos, txtCelular, txtPlaca;
+    private JTextField txtMarca, txtModelo, txtVencBrevete, txtFechaIngreso;
+    private JTextField txtBrevete, txtTarjetas;
+
+    private JCheckBox chkSoat;
+    private JComboBox<String> cboEstado, cboContrato, cboSede;
+    private JSpinner spinnerFechaTarjetas;
+
+    private JButton btnGuardar, btnLimpiar, btnEnlistar;
+
+    private ControladorMotorizado controlador;
+
+    public RegistroMotorizadoFrame(JFrame parent, ControladorMotorizado controlador) {
+
+        super(parent, "Registro de Motorizado", true);
+        this.controlador = controlador;
+
+        setSize(620, 600); // AÚN MÁS COMPACTO
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(BG_LIGHT);
+        setContentPane(root);
+
+        // -----------------------------------------------------
+        // HEADER SUPER MINIMALISTA
+        // -----------------------------------------------------
+        JPanel header = new JPanel();
+        header.setBackground(PROSEGUR_YELLOW);
+        header.setBorder(new EmptyBorder(6, 10, 6, 10)); // ALTURA REDUCIDA
+
+        JLabel titulo = new JLabel("Registro de Motorizado", SwingConstants.CENTER);
+        titulo.setFont(new Font("Montserrat", Font.BOLD, 18));
+        titulo.setForeground(PROSEGUR_BLACK);
+        header.add(titulo);
+
+        root.add(header, BorderLayout.NORTH);
+
+        // -----------------------------------------------------
+        // PANEL CENTRAL EN 2 COLUMNAS
+        // -----------------------------------------------------
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        form.setBorder(new EmptyBorder(12, 20, 12, 20));
+        root.add(form, BorderLayout.CENTER);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 8, 4, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        int row = 0;
+
+        // ---- COLUMNA 1 ----
+        txtDni = addField(form, gbc, "DNI:", row, 0);
+        txtNombres = addField(form, gbc, "Nombres:", ++row, 0);
+        txtApellidos = addField(form, gbc, "Apellidos:", ++row, 0);
+        txtCelular = addField(form, gbc, "Celular:", ++row, 0);
+        txtPlaca = addField(form, gbc, "Placa:", ++row, 0);
+        txtMarca = addField(form, gbc, "Marca:", ++row, 0);
+        txtModelo = addField(form, gbc, "Modelo:", ++row, 0);
+
+        // ---- COLUMNA 2 ----
+        row = 0;
+        txtBrevete = addField(form, gbc, "Brevete:", row, 1);
+        txtVencBrevete = addField(form, gbc, "Venc. brevete:", ++row, 1);
+        txtVencBrevete.setText("2026-12-31");
+
+        // SOAT
+        gbc.gridx = 1;
+        gbc.gridy = ++row;
+        JLabel soatLabel = new JLabel("SOAT vigente:");
+        soatLabel.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        form.add(soatLabel, gbc);
+
+        chkSoat = new JCheckBox();
+        chkSoat.setBackground(Color.WHITE);
+        gbc.gridx = 2;
+        form.add(chkSoat, gbc);
+
+        // Estado
+        gbc.gridx = 1;
+        gbc.gridy = ++row;
+        JLabel lblEstado = new JLabel("Estado:");
+        lblEstado.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        form.add(lblEstado, gbc);
+
+        cboEstado = new JComboBox<>(new String[]{"Activo", "Inactivo"});
+        gbc.gridx = 2;
+        form.add(cboEstado, gbc);
+
+        // Fecha ingreso
+        txtFechaIngreso = addField(form, gbc, "Fecha ingreso:", ++row, 1);
+        txtFechaIngreso.setText("2025-01-01");
+
+        // Contrato
+        gbc.gridx = 1;
+        gbc.gridy = ++row;
+        JLabel lblContrato = new JLabel("Contrato:");
+        lblContrato.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        form.add(lblContrato, gbc);
+
+        cboContrato = new JComboBox<>(new String[]{"Express", "Tiempo completo", "Medio tiempo"});
+        gbc.gridx = 2;
+        form.add(cboContrato, gbc);
+
+        // Sede
+        gbc.gridx = 1;
+        gbc.gridy = ++row;
+        JLabel lblSede = new JLabel("Sede:");
+        lblSede.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        form.add(lblSede, gbc);
+
+        cboSede = new JComboBox<>(new String[]{
+                "1 - Miraflores",
+                "2 - Surco",
+                "3 - Tambo Norte"
+        });
+        gbc.gridx = 2;
+        form.add(cboSede, gbc);
+
+        // Tarjetas
+        txtTarjetas = addField(form, gbc, "Tarjetas:", ++row, 1);
+        txtTarjetas.setText("0");
+
+        // Fecha Ruta
+        gbc.gridx = 1;
+        gbc.gridy = ++row;
+        JLabel lblFechaRuta = new JLabel("Fecha ruta:");
+        lblFechaRuta.setFont(new Font("Montserrat", Font.PLAIN, 13));
+        form.add(lblFechaRuta, gbc);
+
+        spinnerFechaTarjetas = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
+        spinnerFechaTarjetas.setEditor(new JSpinner.DateEditor(spinnerFechaTarjetas, "yyyy-MM-dd"));
+        gbc.gridx = 2;
+        form.add(spinnerFechaTarjetas, gbc);
+
+        // -----------------------------------------------------
+        // BOTONES
+        // -----------------------------------------------------
+        JPanel buttons = new JPanel(new FlowLayout());
+        buttons.setBackground(BG_LIGHT);
+
+        btnGuardar = new JButton("Guardar");
+        btnGuardar.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btnGuardar.setBackground(PROSEGUR_YELLOW);
+
+        btnLimpiar = new JButton("Limpiar");
+        btnLimpiar.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btnLimpiar.setBackground(PROSEGUR_BLACK);
+        btnLimpiar.setForeground(Color.WHITE);
+
+        btnEnlistar = new JButton("Ver listado");
+        btnEnlistar.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btnEnlistar.setBackground(new Color(50, 50, 50));
+        btnEnlistar.setForeground(PROSEGUR_YELLOW);
+
+        buttons.add(btnGuardar);
+        buttons.add(btnLimpiar);
+        buttons.add(btnEnlistar);
+
+        root.add(buttons, BorderLayout.SOUTH);
+
+        // Eventos
+        btnGuardar.addActionListener(e -> guardar());
+        btnLimpiar.addActionListener(e -> limpiar());
+        btnEnlistar.addActionListener(this);
+    }
+
+    // Método compacto para crear label+textfield
+    private JTextField addField(JPanel panel, GridBagConstraints gbc, String label, int row, int col) {
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Montserrat", Font.PLAIN, 13));
+
+        gbc.gridx = col;
+        gbc.gridy = row;
+        panel.add(lbl, gbc);
+
+        JTextField txt = new JTextField();
+        txt.setFont(new Font("Montserrat", Font.PLAIN, 13));
+
+        gbc.gridx = col + 1;
+        panel.add(txt, gbc);
+
+        return txt;
+    }
+
+    // -----------------------------
+    // GUARDAR (MISMA LÓGICA)
+    // -----------------------------
+    private void guardar() {
+        try {
+
+            if (!chkSoat.isSelected()) {
+                JOptionPane.showMessageDialog(this,
+                    "No se puede contratar a un motorizado SIN SOAT vigente.");
+                return;
+            }
+
+            String dni = txtDni.getText().trim();
+            if (!dni.matches("\\d{8}")) {
+                JOptionPane.showMessageDialog(this, "El DNI debe contener 8 dígitos.");
+                return;
+            }
+
+            if (repositorio.InMemoryDatabase.existeDni(dni)) {
+                JOptionPane.showMessageDialog(this, "Este DNI ya está registrado.");
+                return;
+            }
+
+            int tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
+            String sedeFull = (String) cboSede.getSelectedItem();
+            int idSede = Integer.parseInt(sedeFull.substring(0, 1));
+
+            java.util.Date fechaUtil = (java.util.Date) spinnerFechaTarjetas.getValue();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            String fechaRuta = sdf.format(fechaUtil);
+
+            Motorizado m = new Motorizado(
+                0,
+                dni,
+                txtNombres.getText().trim(),
+                txtApellidos.getText().trim(),
+                txtCelular.getText().trim(),
+                txtPlaca.getText().trim(),
+                txtMarca.getText().trim(),
+                txtModelo.getText().trim(),
+                txtBrevete.getText().trim(),
+                txtVencBrevete.getText().trim(),
+                true,
+                (String) cboEstado.getSelectedItem(),
+                txtFechaIngreso.getText().trim(),
+                (String) cboContrato.getSelectedItem(),
+                tarjetas,
+                false,
+                fechaRuta,
+                idSede
+            );
+
+            controlador.guardarMotorizado(m);
+            limpiar();
+            JOptionPane.showMessageDialog(this, "Motorizado registrado correctamente.");
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void limpiar() {
+        txtDni.setText("");
+        txtNombres.setText("");
+        txtApellidos.setText("");
+        txtCelular.setText("");
+        txtPlaca.setText("");
+        txtMarca.setText("");
+        txtModelo.setText("");
+        txtBrevete.setText("");
+        txtVencBrevete.setText("2026-12-31");
+        chkSoat.setSelected(false);
+        txtFechaIngreso.setText("2025-01-01");
+        cboEstado.setSelectedIndex(0);
+        cboContrato.setSelectedIndex(0);
+        cboSede.setSelectedIndex(0);
+        txtTarjetas.setText("0");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnEnlistar) {
+            ListadoMotorizadoFrame listado =
+                new ListadoMotorizadoFrame(
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    controlador
+                );
+            listado.setVisible(true);
+        }
+    }
+}

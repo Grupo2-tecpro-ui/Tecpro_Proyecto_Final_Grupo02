@@ -1,14 +1,21 @@
 package GUI;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import Controlador.ControladorMotorizado;
 import Modelado.Motorizado;
+import Modelado.Entrega;
+import Modelado.DetalleEntrega;
 import repositorio.FileManager;
 import repositorio.InMemoryDatabase;
 
@@ -16,159 +23,202 @@ public class MainMenu extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
-    private static final Color PROSEGUR_BLACK = new Color(18, 18, 18);
-    private static final Font TITLE_FONT = new Font("Montserrat", Font.BOLD, 22);
-    private static final Font SUBTITLE_FONT = new Font("Montserrat", Font.PLAIN, 14);
+    // Paleta B - Corporate Platinum
+    private static final Color PROSEGUR_YELLOW    = new Color(255, 215, 40);
+    private static final Color PROSEGUR_PLATINUM  = new Color(236, 236, 236);
+    private static final Color PROSEGUR_BLACK     = new Color(15, 15, 15);
+    private static final Color PROSEGUR_GRAY      = new Color(90, 90, 90);
+    private static final Color PROSEGUR_SOFT_GRAY = new Color(220, 220, 220);
 
     private ControladorMotorizado controlador;
-
-    private JButton btnRegistroMotorizado;
-    private JButton btnListadoMotorizado;
-    private JButton btnRegistrarEntregas;
-    private JButton btnReporteEntregas;
-    private JButton btnHistorialEntregas;
-    private JButton btnExportar;
-    private JButton btnImportar;
-    private JButton btnBackup;
+    private DashboardPanel dashboard;
 
     public MainMenu() {
-
         controlador = new ControladorMotorizado();
 
-        // -------- CONFIG VENTANA ---------
-        setTitle("Panel Operativo - Prosegur");
-        setSize(600, 700);
+        setTitle("Panel Operativo - Prosegur Riders");
+        setSize(1280, 720);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(PROSEGUR_BLACK);
-        setContentPane(contentPanel);
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(PROSEGUR_PLATINUM);
+        setContentPane(root);
 
-        // -------- HEADER ---------
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(PROSEGUR_YELLOW);
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 20, 30));
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(PROSEGUR_YELLOW);
+        header.setBorder(new EmptyBorder(20, 30, 20, 30));
 
-        JLabel lblTitulo = new JLabel("⚫ Panel Operativo Prosegur", SwingConstants.LEFT);
-        lblTitulo.setFont(TITLE_FONT);
+      
+        JPanel headerLeft = new JPanel(new BorderLayout());
+        headerLeft.setOpaque(false);
+
+        JLabel lblTitulo = new JLabel("🏍️ Panel Operativo Prosegur");
+        lblTitulo.setFont(new Font("Montserrat", Font.BOLD, 28));
         lblTitulo.setForeground(PROSEGUR_BLACK);
 
-        JLabel lblSubtitulo = new JLabel("Control total de motorizados y entregas", SwingConstants.LEFT);
-        lblSubtitulo.setFont(SUBTITLE_FONT);
-        lblSubtitulo.setForeground(PROSEGUR_BLACK);
+        JLabel lblSub = new JLabel("Gestión integral de motorizados y entregas 🚚");
+        lblSub.setFont(new Font("Montserrat", Font.PLAIN, 16));
+        lblSub.setForeground(PROSEGUR_BLACK);
 
-        headerPanel.add(lblTitulo, BorderLayout.NORTH);
-        headerPanel.add(lblSubtitulo, BorderLayout.SOUTH);
+        headerLeft.add(lblTitulo, BorderLayout.NORTH);
+        headerLeft.add(lblSub, BorderLayout.SOUTH);
 
-        contentPanel.add(headerPanel, BorderLayout.NORTH);
-        JPanel footerPanel = new JPanel(new BorderLayout());
-        footerPanel.setBackground(PROSEGUR_BLACK);
-        footerPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 20, 15));
 
-        // -------- CENTER / GRIDBAG ---------
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setOpaque(false);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(30, 80, 30, 80));
+        JLabel lblLogo = new JLabel();
+        lblLogo.setHorizontalAlignment(SwingConstants.RIGHT);
+        try {
+            ImageIcon icono = new ImageIcon("C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\prosegurlogo.png");
+            Image imgRedimensionada = icono.getImage().getScaledInstance(140, 55, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(imgRedimensionada));
+        } catch (Exception ex) {
+            lblLogo.setText("LOGO");
+            lblLogo.setFont(new Font("Montserrat", Font.BOLD, 14));
+            lblLogo.setForeground(PROSEGUR_BLACK);
+        }
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.weightx = 1.0;
+        header.add(headerLeft, BorderLayout.WEST);
+        header.add(lblLogo, BorderLayout.EAST);
 
-        // -------- BOTONES ---------
+        root.add(header, BorderLayout.NORTH);
 
-        btnRegistroMotorizado = createMenuButton("⚫ Registrar Motorizado");
-        centerPanel.add(btnRegistroMotorizado, gbc);
+      
+        JPanel mainContainer = new JPanel(new BorderLayout());
+        mainContainer.setBackground(PROSEGUR_PLATINUM);
+        root.add(mainContainer, BorderLayout.CENTER);
 
-        gbc.gridy = 1;
-        btnListadoMotorizado = createMenuButton("⚫ Listado de Motorizados");
-        centerPanel.add(btnListadoMotorizado, gbc);
 
-        gbc.gridy = 2;
-        btnRegistrarEntregas = createMenuButton("⚫ Registrar Entregas");
-        centerPanel.add(btnRegistrarEntregas, gbc);
+        JPanel sidebar = new JPanel();
+        sidebar.setBackground(PROSEGUR_BLACK);
+        sidebar.setPreferredSize(new Dimension(240, 720));
+        sidebar.setLayout(new GridLayout(0, 1, 0, 8));
+        sidebar.setBorder(new EmptyBorder(25, 20, 25, 20));
 
-        gbc.gridy = 3;
-        btnReporteEntregas = createMenuButton("⚫ Reporte de Entregas");
-        centerPanel.add(btnReporteEntregas, gbc);
+        sidebar.add(createSidebarButton("Registrar Motorizado 🏍️", e -> abrirRegistroMotorizado()));
+        sidebar.add(createSidebarButton("Listado de Motorizados 📋", e -> abrirListado()));
+        sidebar.add(createSidebarButton("Registrar Entregas 🧾", e -> registrarEntregaDialog()));
+        sidebar.add(createSidebarButton("Reporte de Entregas 📝", e -> abrirReporte()));
+        sidebar.add(createSidebarButton("Historial de Entregas 💻", e -> abrirHistorial()));
+        sidebar.add(createSidebarButton("Exportar CSV 📉", e -> exportarCSV()));
+        sidebar.add(createSidebarButton("Importar CSV 📊", e -> importarCSV()));
+        sidebar.add(createSidebarButton("Backup 💾", e -> backupArchivos()));
 
-        gbc.gridy = 4;
-        btnHistorialEntregas = createMenuButton("⚫ Historial de Entregas");
-        centerPanel.add(btnHistorialEntregas, gbc);
+        mainContainer.add(sidebar, BorderLayout.WEST);
 
-        gbc.gridy = 5;
-        btnExportar = createSecondaryButton("Exportar CSV ⚫");
-        centerPanel.add(btnExportar, gbc);
+ 
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(PROSEGUR_PLATINUM);
+    
+        content.setBorder(new EmptyBorder(10, 25, 10, 25));
 
-        gbc.gridy = 6;
-        btnImportar = createSecondaryButton("Importar CSV ⚫");
-        centerPanel.add(btnImportar, gbc);
+        dashboard = new DashboardPanel(controlador);
+        content.add(dashboard, BorderLayout.CENTER);
 
-        gbc.gridy = 7;
-        btnBackup = createSecondaryButton("Backup ⚫");
-        centerPanel.add(btnBackup, gbc);
+        mainContainer.add(content, BorderLayout.CENTER);
 
-        contentPanel.add(centerPanel, BorderLayout.CENTER);
+ 
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setBackground(PROSEGUR_BLACK);
+        footer.setBorder(new EmptyBorder(10, 25, 20, 25));
 
-        // -------- FOOTER ---------
-        JLabel footer = new JLabel("⚫ Mantén tus datos seguros con Prosegur", SwingConstants.CENTER);
-        footer.setForeground(PROSEGUR_YELLOW);
-        footer.setFont(new Font("Montserrat", Font.PLAIN, 12));
-        footerPanel.add(footer, BorderLayout.CENTER);
-        JButton btnAutores = new JButton("Autores");
-        btnAutores.setFont(new Font("Montserrat", Font.BOLD, 12));
-        btnAutores.setForeground(PROSEGUR_BLACK);
+        JLabel lblFooter = new JLabel("🔐 Mantén tus datos seguros con Prosegur", SwingConstants.CENTER);
+        lblFooter.setForeground(PROSEGUR_YELLOW);
+        lblFooter.setFont(new Font("Montserrat", Font.PLAIN, 13));
+
+        JButton btnAutores = new JButton("Autores👤");
+        btnAutores.setFont(new Font("Montserrat", Font.BOLD, 13));
         btnAutores.setBackground(PROSEGUR_YELLOW);
-        btnAutores.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAutores.setForeground(PROSEGUR_BLACK);
         btnAutores.setFocusPainted(false);
-        btnAutores.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
-        footerPanel.add(btnAutores, BorderLayout.WEST);
-
-        contentPanel.add(footerPanel, BorderLayout.SOUTH);
-        // -------- LISTENERS ---------
-        btnRegistroMotorizado.addActionListener(e -> new RegistroMotorizadoFrame(controlador).setVisible(true));
-
-        btnListadoMotorizado.addActionListener(e -> new ListadoMotorizadoFrame(controlador).setVisible(true));
-
-        btnRegistrarEntregas.addActionListener(e -> registrarEntregaDialog());
-
-        btnReporteEntregas.addActionListener(e -> new ReporteEntregasFrame(controlador).setVisible(true));
-
-        btnHistorialEntregas.addActionListener(e -> new HistorialEntregaFrame(controlador).setVisible(true));
-
-        btnExportar.addActionListener(e -> exportarCSV());
-
-        btnImportar.addActionListener(e -> importarCSV());
-
-        btnBackup.addActionListener(e -> backupArchivos());
+        btnAutores.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
+        btnAutores.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAutores.addActionListener(e -> new Autoresgui(this).setVisible(true));
+
+        footer.add(btnAutores, BorderLayout.WEST);
+        footer.add(lblFooter, BorderLayout.CENTER);
+
+        root.add(footer, BorderLayout.SOUTH);
     }
 
-    // --------- MÉTODOS AUXILIARES ---------
+
+    public void refrescarDashboard() {
+        if (dashboard != null) {
+            dashboard.refrescarForzado();
+        }
+    }
+
+    
+    private JButton createSidebarButton(String text, java.awt.event.ActionListener listener) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btn.setBackground(PROSEGUR_BLACK);
+        btn.setForeground(PROSEGUR_PLATINUM);
+        btn.setFocusPainted(false);
+        btn.setBorder(new EmptyBorder(8, 12, 8, 12));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.addActionListener(listener);
+        return btn;
+    }
+
+   
+    private void abrirRegistroMotorizado() {
+        RegistroMotorizadoFrame frm = new RegistroMotorizadoFrame(this, controlador);
+        frm.setVisible(true);
+        frm.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosed(java.awt.event.WindowEvent e) {
+                refrescarDashboard();
+            }
+        });
+    }
+
+    private void abrirListado() {
+        ListadoMotorizadoFrame frm = new ListadoMotorizadoFrame(this, controlador);
+        frm.setVisible(true);
+        frm.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosed(java.awt.event.WindowEvent e) {
+                refrescarDashboard();
+            }
+        });
+    }
+
+    private void abrirReporte() {
+        ReporteEntregasFrame frm = new ReporteEntregasFrame(this, controlador);
+        frm.setVisible(true);
+    }
+
+    private void abrirHistorial() {
+        HistorialEntregaFrame frm = new HistorialEntregaFrame(this, controlador);
+        frm.setVisible(true);
+    }
 
     private void registrarEntregaDialog() {
-        String dniSeleccionado = JOptionPane.showInputDialog(this, "Ingrese DNI del motorizado:");
-        if (dniSeleccionado == null) return;
-        dniSeleccionado = dniSeleccionado.trim();
+        String dni = JOptionPane.showInputDialog(this, "Ingrese DNI del motorizado:");
+        if (dni == null) return;
+        dni = dni.trim();
 
-        if (!dniSeleccionado.matches("\\d{8}")) {
-            JOptionPane.showMessageDialog(this, "El DNI debe contener exactamente 8 dígitos.");
+        if (!dni.matches("\\d{8}")) {
+            JOptionPane.showMessageDialog(this, "El DNI debe contener 8 dígitos.");
             return;
         }
 
-        if (!controlador.existeDni(dniSeleccionado)) {
+        if (!controlador.existeDni(dni)) {
             JOptionPane.showMessageDialog(this, "No existe motorizado con ese DNI.");
             return;
         }
 
-        Entrega ef = new Entrega(controlador, dniSeleccionado);
+        GUI.Entrega ef = new GUI.Entrega(this, controlador, dni);
         ef.setVisible(true);
+
+        ef.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosed(java.awt.event.WindowEvent e) {
+                refrescarDashboard();
+            }
+        });
     }
 
+   
     private void exportarCSV() {
         try {
             Path pMot = Paths.get("data", "motorizados.csv");
@@ -177,7 +227,7 @@ public class MainMenu extends JFrame {
             Path pEnt = Paths.get("data", "entregas.csv");
             FileManager.exportarEntregasCSV(InMemoryDatabase.getEntregas(), pEnt);
 
-            JOptionPane.showMessageDialog(this, "Exportado a /data correctamente.");
+            JOptionPane.showMessageDialog(this, "Exportado a carpeta data/ correctamente.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al exportar: " + ex.getMessage());
         }
@@ -186,25 +236,23 @@ public class MainMenu extends JFrame {
     private void importarCSV() {
         JFileChooser chooser = new JFileChooser("data");
         chooser.setDialogTitle("Seleccione CSV de motorizados para importar");
-
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 Path sel = chooser.getSelectedFile().toPath();
                 List<Motorizado> importados = FileManager.importarMotorizadosCSV(sel);
+                int agregados = 0, omitidos = 0;
 
-                int agregados = 0;
-                int omitidos = 0;
                 for (Motorizado m : importados) {
                     if (!InMemoryDatabase.existeDni(m.getDni())) {
                         InMemoryDatabase.addMotorizado(m);
                         agregados++;
-                    } else {
-                        omitidos++;
-                    }
+                    } else omitidos++;
                 }
 
                 JOptionPane.showMessageDialog(this,
-                        "Importación completada.\nAgregados: " + agregados + "\nOmitidos: " + omitidos);
+                    "Importación finalizada.\nAgregados: " + agregados +
+                    "\nOmitidos (duplicados): " + omitidos);
+                refrescarDashboard();
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error al importar: " + ex.getMessage());
@@ -215,38 +263,273 @@ public class MainMenu extends JFrame {
     private void backupArchivos() {
         try {
             Path src = Paths.get("data", "motorizados.csv");
-            Path dest = Paths.get("data", "backup", "motorizados_backup_" + System.currentTimeMillis() + ".csv");
-            FileManager.backupFile(src, dest);
+            Path dest = Paths.get("data", "backup",
+                    "motorizados_backup_" + System.currentTimeMillis() + ".csv");
 
+            FileManager.backupFile(src, dest);
             JOptionPane.showMessageDialog(this, "Backup creado:\n" + dest.toString());
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al crear backup: " + ex.getMessage());
         }
     }
 
-    // --------- BOTONES ESTILIZADOS ---------
+ 
+    private static class DashboardPanel extends JPanel {
 
-    private JButton createMenuButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Montserrat", Font.BOLD, 16));
-        button.setForeground(PROSEGUR_BLACK);
-        button.setBackground(PROSEGUR_YELLOW);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setOpaque(true);
-        return button;
+        private final ControladorMotorizado controlador;
+        private final JLabel lblActivos;
+        private final JLabel lblEntregasDia;
+        private final JLabel lblConformesDia;
+        private final BarChartPanel chartPanel;
+
+        public DashboardPanel(ControladorMotorizado controlador) {
+            this.controlador = controlador;
+
+            setLayout(new BorderLayout(10, 10));
+            setBackground(PROSEGUR_PLATINUM);
+      
+            setBorder(new EmptyBorder(10, 0, 10, 0));
+
+            JPanel center = new JPanel(new GridBagLayout());
+            center.setBackground(PROSEGUR_PLATINUM);
+            add(center, BorderLayout.CENTER);
+
+        
+            JPanel cardsPanel = new JPanel(new GridBagLayout());
+            cardsPanel.setOpaque(false);
+
+            GridBagConstraints gbcCards = new GridBagConstraints();
+            gbcCards.insets = new Insets(10, 10, 10, 10);
+            gbcCards.fill = GridBagConstraints.BOTH;
+            gbcCards.weightx = 1.0;
+            gbcCards.weighty = 1.0;
+
+            lblActivos = createCardLabel("Motorizados Activos 🗹", "0");
+            lblEntregasDia = createCardLabel("Entregas del día 🎯", "0");
+            lblConformesDia = createCardLabel("Conformes del día ✔️", "0");
+
+         
+            JPanel cardActivos   = wrapCard(lblActivos);
+            JPanel cardEntregas  = wrapCard(lblEntregasDia);
+            JPanel cardConformes = wrapCard(lblConformesDia);
+
+     
+            cardActivos.setPreferredSize(new Dimension(320, 200));
+            cardEntregas.setPreferredSize(new Dimension(320, 200));
+            cardConformes.setPreferredSize(new Dimension(660, 220));
+
+            gbcCards.gridx = 0;
+            gbcCards.gridy = 0;
+            cardsPanel.add(cardActivos, gbcCards);
+
+            gbcCards.gridx = 1;
+            gbcCards.gridy = 0;
+            cardsPanel.add(cardEntregas, gbcCards);
+
+            gbcCards.gridx = 0;
+            gbcCards.gridy = 1;
+            gbcCards.gridwidth = 2;
+            cardsPanel.add(cardConformes, gbcCards);
+
+            chartPanel = new BarChartPanel();
+            chartPanel.setPreferredSize(new Dimension(520, 420)); // más alto
+            chartPanel.setBackground(PROSEGUR_BLACK);
+            chartPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+            JPanel chartContainer = new JPanel(new BorderLayout());
+            chartContainer.setBackground(PROSEGUR_BLACK);
+            chartContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+            chartContainer.setPreferredSize(new Dimension(520, 440));
+
+            JLabel chartTitle = new JLabel("Seguimiento de entregas 📦", SwingConstants.CENTER);
+            chartTitle.setFont(new Font("Montserrat", Font.BOLD, 16));
+            chartTitle.setForeground(Color.WHITE);
+
+            chartContainer.add(chartTitle, BorderLayout.NORTH);
+            chartContainer.add(chartPanel, BorderLayout.CENTER);
+
+            GridBagConstraints gbcMain = new GridBagConstraints();
+            gbcMain.insets = new Insets(5, 5, 5, 5);
+            gbcMain.fill = GridBagConstraints.BOTH;
+            gbcMain.weighty = 1.0;
+
+            gbcMain.gridx = 0;
+            gbcMain.gridy = 0;
+            gbcMain.weightx = 0.4;
+            center.add(cardsPanel, gbcMain);
+
+            gbcMain.gridx = 1;
+            gbcMain.gridy = 0;
+            gbcMain.weightx = 0.6;
+            center.add(chartContainer, gbcMain);
+
+            refrescarDatos();
+        }
+
+        private JLabel createCardLabel(String title, String value) {
+            JLabel lbl = new JLabel(
+                "<html><div style='text-align:center;'>" +
+                "<span style='font-size:13px;'>" + title + "</span><br>" +
+                "<span style='font-size:26px; font-weight:bold;'>" + value + "</span>" +
+                "</div></html>",
+                SwingConstants.CENTER
+            );
+            lbl.setFont(new Font("Montserrat", Font.PLAIN, 14));
+            lbl.setForeground(PROSEGUR_GRAY);
+            return lbl;
+        }
+
+        private JPanel wrapCard(JLabel content) {
+            JPanel card = new JPanel(new BorderLayout());
+            card.setBackground(Color.WHITE);
+            card.setBorder(new CompoundBorder(
+                    new LineBorder(PROSEGUR_SOFT_GRAY, 1, true),
+                    new EmptyBorder(16, 16, 16, 16)
+            ));
+            card.add(content, BorderLayout.CENTER);
+            return card;
+        }
+
+        private void refrescarDatos() {
+        	List<Motorizado> motorizados = controlador.listarMotorizados();  // ← CAMBIO 1
+        	int activos = 0;
+        	for (Motorizado m : motorizados) {
+        	    if ("Activo".equalsIgnoreCase(m.getEstado())) activos++;
+        	}
+
+        	String hoy = LocalDate.now().toString();
+
+        	
+        	List<Entrega> entregas = controlador.listarEntregasBD();  
+
+        	int entregasDia = 0, conformesDia = 0;
+
+        	for (Entrega e : entregas) {
+        	    if (e == null || e.getFecha() == null) continue;
+        	    if (!hoy.equals(e.getFecha())) continue;
+
+        	    entregasDia += e.getCantidad();
+
+        	    if (e.getDetalles() != null) {
+        	        for (DetalleEntrega d : e.getDetalles()) {
+        	            if (d != null && d.isConforme()) conformesDia++;
+        	        }
+        	    }
+        	}
+
+        	lblActivos.setText(
+        	    "<html><div style='text-align:center;'>" +
+        	    "<span style='font-size:13px;'>Motorizados Activos</span><br>" +
+        	    "<span style='font-size:26px; font-weight:bold;'>" + activos + "</span>" +
+        	    "</div></html>"
+        	);
+        	lblEntregasDia.setText(
+        	    "<html><div style='text-align:center;'>" +
+        	    "<span style='font-size:13px;'>Entregas del día</span><br>" +
+        	    "<span style='font-size:26px; font-weight:bold;'>" + entregasDia + "</span>" +
+        	    "</div></html>"
+        	);
+        	lblConformesDia.setText(
+        	    "<html><div style='text-align:center;'>" +
+        	    "<span style='font-size:13px;'>Conformes del día</span><br>" +
+        	    "<span style='font-size:26px; font-weight:bold;'>" + conformesDia + "</span>" +
+        	    "</div></html>"
+        	);
+
+        	Map<String, Integer> mapa = new LinkedHashMap<>();
+        	for (Entrega e : entregas) {
+        	    String dni = e.getDniMotorizado();
+        	    if (dni == null || dni.trim().isEmpty()) continue;
+
+        	    Motorizado m = controlador.buscarPorDni(dni);
+
+        	    String nombre = (m != null)
+        	            ? m.getNombres() + " " + m.getApellidos()
+        	            : "Desconocido (" + dni + ")";
+
+        	    mapa.put(nombre, mapa.getOrDefault(nombre, 0) + e.getCantidad());
+        	}
+
+        	String[] etiquetas = mapa.keySet().stream().limit(6).toArray(String[]::new);
+        	int[] valores = new int[etiquetas.length];
+        	for (int i = 0; i < etiquetas.length; i++) valores[i] = mapa.get(etiquetas[i]);
+
+        	chartPanel.setData(etiquetas, valores);
+
+        }
+
+        public void refrescarForzado() {
+            refrescarDatos();
+            revalidate();
+            repaint();
+        }
     }
 
-    private JButton createSecondaryButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Montserrat", Font.BOLD, 14));
-        button.setForeground(PROSEGUR_YELLOW);
-        button.setBackground(PROSEGUR_BLACK);
-        button.setBorder(BorderFactory.createLineBorder(PROSEGUR_YELLOW, 2, true));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFocusPainted(false);
-        button.setOpaque(true);
-        return button;
+   
+    private static class BarChartPanel extends JPanel {
+
+        private String[] labels = new String[0];
+        private int[] values = new int[0];
+
+        public BarChartPanel() {
+            setOpaque(true);
+            setBackground(PROSEGUR_BLACK);
+        }
+
+        public void setData(String[] labels, int[] values) {
+            this.labels = (labels != null) ? labels : new String[0];
+            this.values = (values != null) ? values : new int[0];
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (labels.length == 0 || values.length == 0) return;
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = getWidth();
+            int height = getHeight();
+
+            int max = 1;
+            for (int v : values) if (v > max) max = v;
+
+            int baseY = height - 40;
+            int barWidth = (width - 80) / values.length;
+            int x = 40;
+
+            g2.setColor(PROSEGUR_BLACK);
+            g2.fillRect(0, 0, width, height);
+
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.drawLine(30, baseY, width - 20, baseY);
+
+            g2.setFont(new Font("Montserrat", Font.PLAIN, 11));
+
+            for (int i = 0; i < values.length; i++) {
+                int val = values[i];
+                int barHeight = (int) ((height - 80) * (val / (double) max));
+                int y = baseY - barHeight;
+
+                g2.setColor(PROSEGUR_YELLOW);
+                g2.fillRoundRect(x, y, barWidth - 12, barHeight, 10, 10);
+
+                g2.setColor(Color.WHITE);
+                String valStr = String.valueOf(val);
+                FontMetrics fm = g2.getFontMetrics();
+                int valW = fm.stringWidth(valStr);
+                g2.drawString(valStr, x + (barWidth - 12 - valW) / 2, y - 4);
+
+                String label = labels[i];
+                int lblW = fm.stringWidth(label);
+                g2.drawString(label, x + (barWidth - 12 - lblW) / 2, baseY + 15);
+
+                x += barWidth;
+            }
+
+            g2.dispose();
+        }
     }
 }

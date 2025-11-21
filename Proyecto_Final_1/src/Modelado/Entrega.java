@@ -24,7 +24,7 @@ public class Entrega {
 	        this(id, dniMotorizado, cantidad, cantidad, fecha, null);
 	    }
 
-	    // getters / setters
+
 	    public int getId() { return id; }
 	    public void setId(int id) { this.id = id; }
 

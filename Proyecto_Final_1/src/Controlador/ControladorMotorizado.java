@@ -1,237 +1,145 @@
 package Controlador;
-import repositorio.InMemoryDatabase;
+
+import repositorio.DetalleEntregaDAO;
+import repositorio.EntregaDAO;
+import repositorio.MotorizadoDAO;
+
 import Modelado.Motorizado;
-import javax.swing.JOptionPane;
-import java.util.List;
-import java.util.ArrayList;
-import Modelado.ReporteEntrega;
-import Modelado.Motorizado;
-import repositorio.InMemoryDatabase;
 import Modelado.Entrega;
 import Modelado.DetalleEntrega;
-import Controlador.CartasInsuficientes;
-import Controlador.MotorizadoNoEncontrado;
+import Modelado.ReporteEntrega;
 import Modelado.HistorialEntrega;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class ControladorMotorizado {
 	
-	
-	
+	private MotorizadoDAO motorizadoDAO = new MotorizadoDAO();
+	private EntregaDAO entregaDAO = new EntregaDAO();
+	private DetalleEntregaDAO detalleDAO = new DetalleEntregaDAO();
+
+	// =======================================================
+	// GUARDAR MOTORIZADO
+	// =======================================================
 	public void guardarMotorizado(Motorizado m) {
-		 InMemoryDatabase.addMotorizado(m);
-        JOptionPane.showMessageDialog(null,
-                "Motorizado guardado:\n" +
-                "DNI: " + m.getDni() + "\n" +
-                "Nombres: " + m.getNombres() + "\n" +
-                "Apellidos: " + m.getApellidos() + "\n" +
-                "Celular: " + m.getCelular() + "\n" +
-                "Placa: " + m.getPlaca()
-        );
-    }
-	  public List<Motorizado> listarMotorizados() {
-	        return InMemoryDatabase.getMotorizados();
-	    }
-	  public boolean eliminarPorDni(String dni) {
-		    if (dni == null || dni.trim().isEmpty()) return false;
-		    return InMemoryDatabase.EliminarPorDni(dni.trim());
+		boolean ok = motorizadoDAO.agregar(m);
+		if (ok) {
+			javax.swing.JOptionPane.showMessageDialog(null,
+				"Motorizado guardado en la base de datos:\n" +
+				"DNI: " + m.getDni() + "\n" +
+				"Nombres: " + m.getNombres() + "\n" +
+				"Apellidos: " + m.getApellidos()
+			);
+		} else {
+			javax.swing.JOptionPane.showMessageDialog(null,
+				"Error al guardar el motorizado en la BD.");
 		}
-	  public boolean existeDni(String dni) {
-		    return InMemoryDatabase.existeDni(dni);
+	}
+
+	// =======================================================
+	// LISTAR
+	// =======================================================
+	public List<Motorizado> listarMotorizados() {
+		return motorizadoDAO.listarTodos();
+	}
+
+	// =======================================================
+	// ELIMINAR POR DNI
+	// =======================================================
+	public boolean eliminarPorDni(String dni) {
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.eliminarPorDni(dni.trim());
+	}
+
+	// =======================================================
+	// VALIDAR EXISTENCIA
+	// =======================================================
+	public boolean existeDni(String dni) {
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.existeDni(dni.trim());
+	}
+
+	// =======================================================
+	// EDITAR
+	// =======================================================
+	public boolean EditarporDNI(String dni, String nuevosNombres, String nuevosApellidos,
+			                   String nuevoCelular, int nuevasTarjetas, String nuevoEstado) 
+	{
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.editarPorDni(
+			dni.trim(),
+			nuevosNombres,
+			nuevosApellidos,
+			nuevoCelular,
+			nuevasTarjetas,
+			nuevoEstado
+		);
+	}
+
+	// =======================================================
+	// REGISTRAR ENTREGA (100% BD)
+	// =======================================================
+	public void registrarEntrega(String dni, int requestedCantidad, String fecha, List<DetalleEntrega> detalles)
+			throws MotorizadoNoEncontrado, CartasInsuficientes {
+
+		// 1️⃣ Buscar motorizado en BD
+		Motorizado m = motorizadoDAO.buscarPorDni(dni);
+		if (m == null)
+			throw new MotorizadoNoEncontrado("No existe motorizado con DNI " + dni);
+
+		// 2️⃣ Contar conformes
+		int aceptadas = 0;
+		for (DetalleEntrega d : detalles)
+			if (d.isConforme()) aceptadas++;
+
+		if (aceptadas <= 0)
+			throw new IllegalArgumentException("Debe registrar al menos 1 tarjeta conforme.");
+
+		// 3️⃣ Validar tarjetas BD
+		if (aceptadas > m.getTarjetasAsignadas())
+			throw new CartasInsuficientes("No hay suficientes tarjetas.");
+
+		// 4️⃣ Crear objeto entrega
+		Entrega e = new Entrega(0, dni, aceptadas, requestedCantidad, fecha, detalles);
+
+		// 5️⃣ Guardar entrega principal y obtener ID generado
+		int idEntrega = entregaDAO.registrarEntregaRetornandoID(e);
+
+		// 6️⃣ Registrar detalles
+		for (DetalleEntrega d : detalles) {
+			detalleDAO.registrarDetalle(d, idEntrega);
 		}
-	  public boolean EditarporDNI(String dni, String nuevosNombres, String nuevosApellidos,
-              String nuevoCelular, int nuevasTarjetas, String nuevoEstado) 
-	  {
-		  if (dni == null || dni.trim().isEmpty()) return false;
-		  return repositorio.InMemoryDatabase.Editar(dni.trim(), nuevosNombres, nuevosApellidos,
-                                  nuevoCelular, nuevasTarjetas, nuevoEstado);
-	  }
-	
-	  public void registrarEntrega(Modelado.Motorizado m, int cantidad) 
-	          throws MotorizadoNoEncontrado, CartasInsuficientes {
-	      if (m == null) throw new MotorizadoNoEncontrado("Motorizado nulo.");
-	      registrarEntrega(m.getDni(), cantidad); 
-	  }
-		  
-	  public void registrarEntrega(String dni, int cantidad) 
-	          throws MotorizadoNoEncontrado, CartasInsuficientes {
-	     
-	      java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-	      String hoy = sdf.format(new java.util.Date());
-	      registrarEntrega(dni, cantidad, hoy); 
-	  }
 
+		// 7️⃣ Actualizar tarjetas BD
+		motorizadoDAO.actualizarTarjetas(dni, m.getTarjetasAsignadas() - aceptadas);
+	}
 
-	 
-	  public void registrarEntrega(int id, int cantidad, String fecha) 
-	          throws MotorizadoNoEncontrado, CartasInsuficientes {
-	      Modelado.Motorizado m = InMemoryDatabase.findById(id);
-	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con id: " + id);
-	  
-	      registrarEntrega(m.getDni(), cantidad, fecha);
-	  }
-	  
+	// =======================================================
+	// REPORTE → 100% BD
+	// =======================================================
+	public List<ReporteEntrega> generarReporteEntregas() {
+		return entregaDAO.generarReporte();
+	}
 
-	 public void registrarEntrega(String dni, int cantidad, String fecha) 
-	          throws MotorizadoNoEncontrado, CartasInsuficientes {
-	      if (dni == null || dni.trim().isEmpty()) throw new MotorizadoNoEncontrado("DNI inválido.");
-	      Modelado.Motorizado m = InMemoryDatabase.findByDniObj(dni.trim());
-	      if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con DNI: " + dni);
+	// =======================================================
+	// HISTORIAL → 100% BD (Vista SQL)
+	// =======================================================
+	public List<HistorialEntrega> obtenerHistorialEntregas() {
+		return entregaDAO.obtenerHistorial();
+	}
+	public List<Entrega> listarEntregasBD() {
+		  List<Entrega> lista = entregaDAO.listarTodas(); // tu método actual de la tabla entrega
 
-	      
-	      
-
-	      if (cantidad <= 0) throw new IllegalArgumentException("La cantidad debe ser mayor que 0.");
-
-	      
-	      int disponibles = m.getTarjetasAsignadas();
-	      if (cantidad > disponibles) {
-	         
-	          throw new CartasInsuficientes("No hay suficientes tarjetas. Disponibles: " 
-	                                               + disponibles + ", solicitado: " + cantidad);
-	      }
-
-	      
-	      Modelado.Entrega e = new Modelado.Entrega(0, dni.trim(), cantidad, fecha);
-	      boolean added = InMemoryDatabase.addEntrega(e);
-	      if (!added) {
-	          throw new RuntimeException("No se pudo registrar la entrega (error interno).");
-	      }
-
-	      
-	      m.setTarjetasAsignadas(disponibles - cantidad);
-	      
-	    
-	  }
-	 
-	 public List<ReporteEntrega> generarReporteEntregas() {
-		    List<ReporteEntrega> reporte = new ArrayList<>();
-		    List<Motorizado> lista = InMemoryDatabase.getMotorizados(); // copia de motorizados
-
-		    for (Motorizado m : lista) {
-		        String dni = m.getDni();
-		        int entregado = InMemoryDatabase.getTotalEntregadoPorDni(dni); // suma en ENTREGAS
-		        int restante = m.getTarjetasAsignadas(); // campo actualizado al registrar entregas
-		        int inicial = entregado + restante; // reconstruimos el total inicial asignado
-		        double porcentaje = (inicial == 0) ? 0.0 : (entregado * 100.0 / inicial);
-
-		        ReporteEntrega r = new ReporteEntrega(
-		                dni,
-		                (m.getNombres() == null ? "" : m.getNombres() + " " + (m.getApellidos() == null ? "" : m.getApellidos())),
-		                inicial,
-		                entregado,
-		                restante,
-		                porcentaje
-		        );
-		        reporte.add(r);
+		    // Ahora cargar detalles
+		    for (Entrega e : lista) {
+		        List<DetalleEntrega> det = detalleDAO.listarPorEntrega(e.getId());
+		        e.setDetalles(det); 
 		    }
-		    return reporte;
 
+		    return lista;
+	}
+	public Motorizado buscarPorDni(String dni) {
+	    return motorizadoDAO.buscarPorDni(dni);
+	}
 }
-	 public void registrarEntrega(String dni, int requestedCantidad, String fecha, List<DetalleEntrega> detalles)
-		        throws MotorizadoNoEncontrado, CartasInsuficientes {
-		    if (dni == null || dni.trim().isEmpty()) throw new MotorizadoNoEncontrado("DNI inválido.");
-		    Modelado.Motorizado m = InMemoryDatabase.findByDniObj(dni.trim());
-		    if (m == null) throw new MotorizadoNoEncontrado("No existe motorizado con DNI: " + dni);
-
-		    if (requestedCantidad <= 0) throw new IllegalArgumentException("La cantidad debe ser mayor que 0.");
-
-		    // calcular cuántos detalles están 'conforme'
-		    int aceptadas = 0;
-		    if (detalles != null) {
-		        for (DetalleEntrega d : detalles) {
-		            if (d != null && d.isConforme()) aceptadas++;
-		        }
-		    }
-
-		    if (aceptadas <= 0) {
-		        // No hay entregas válidas; lanzamos excepción o simplemente no registramos.
-		        throw new IllegalArgumentException("No hay entregas conformes para registrar.");
-		    }
-
-		    int disponibles = m.getTarjetasAsignadas();
-		    if (aceptadas > disponibles) {
-		        // si se intentan aceptar más de las tarjetas disponibles -> excepción personalizada
-		        throw new CartasInsuficientes("No hay suficientes tarjetas. Disponibles: " 
-		                                             + disponibles + ", conformes: " + aceptadas);
-		    }
-
-		    // crear Entrega con cantidad = aceptadas, requestedCantidad = requestedCantidad, y detalles
-		    Entrega e = new Entrega(0, dni.trim(), aceptadas, requestedCantidad, fecha, detalles);
-		    boolean added = InMemoryDatabase.addEntrega(e);
-		    if (!added) {
-		        throw new RuntimeException("No se pudo registrar la entrega (error interno).");
-		    }
-
-		    // actualizar motorizado: restar solo las aceptadas
-		    m.setTarjetasAsignadas(disponibles - aceptadas);
-		} 
-	 public List<HistorialEntrega> obtenerHistorialEntregas() {
-         List<HistorialEntrega> historial = new ArrayList<>();
-         List<Entrega> entregas = InMemoryDatabase.getEntregas();
-
-         for (Entrega entrega : entregas) {
-             if (entrega == null) {
-                 continue;
-             }
-
-             Motorizado motorizado = InMemoryDatabase.findByDniObj(entrega.getDniMotorizado());
-             String nombreCompleto = buildNombreCompleto(motorizado);
-             String fecha = safe(entrega.getFecha());
-             String dniMotorizado = safe(entrega.getDniMotorizado());
-
-             boolean seAgregoDetalle = false;
-             List<DetalleEntrega> detalles = entrega.getDetalles();
-             if (detalles != null) {
-                 for (DetalleEntrega detalle : detalles) {
-                     if (detalle == null) {
-                         continue;
-                     }
-                     historial.add(crearEntradaHistorial(fecha, nombreCompleto, dniMotorizado, detalle));
-                     seAgregoDetalle = true;
-                 }
-             }
-
-             if (!seAgregoDetalle) {
-                 historial.add(crearEntradaHistorial(fecha, nombreCompleto, dniMotorizado, null));
-             }
-         }
-
-         return historial;
-     }
-
-     private HistorialEntrega crearEntradaHistorial(String fecha,
-                                                    String nombreCompleto,
-                                                    String dniMotorizado,
-                                                    DetalleEntrega detalle) {
-         String cliente = detalle != null ? safe(detalle.getCliente()) : "Sin cliente registrado";
-         String direccion = detalle != null ? safe(detalle.getDireccion()) : "Sin dirección registrada";
-         String banco = detalle != null ? safe(detalle.getBanco()) : "Sin banco registrado";
-         boolean conforme = detalle != null && detalle.isConforme();
-
-         return new HistorialEntrega(
-                 fecha,
-                 cliente,
-                 direccion,
-                 banco,
-                 nombreCompleto,
-                 dniMotorizado,
-                 conforme
-         );
-     }
-
-     private String buildNombreCompleto(Motorizado motorizado) {
-         if (motorizado == null) {
-             return "";
-         }
-         String nombres = safe(motorizado.getNombres());
-         String apellidos = safe(motorizado.getApellidos());
-         String nombreCompleto = (nombres + " " + apellidos).trim();
-         return nombreCompleto;
-     }
-
-     private String safe(String value) {
-         return value == null ? "" : value.trim();
-     }
-
-}
-

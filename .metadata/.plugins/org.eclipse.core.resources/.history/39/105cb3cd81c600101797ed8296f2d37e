@@ -1,0 +1,27 @@
+package repositorio;
+
+import java.sql.*;
+
+import Modelado.DetalleEntrega;
+
+public class DetalleEntregaDAO {
+
+    public void guardarDetalle(int idEntrega, DetalleEntrega d) {
+        String sql = "{CALL agregarDetalleEntrega(?,?,?,?,?)}";
+
+        try (Connection cn = Conexion.getConexion();
+             CallableStatement cs = cn.prepareCall(sql)) {
+
+            cs.setInt(1, idEntrega);
+            cs.setString(2, d.getCliente());
+            cs.setString(3, d.getBanco());
+            cs.setString(4, d.getDireccion());
+            cs.setBoolean(5, d.isConforme());
+
+            cs.executeUpdate();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}

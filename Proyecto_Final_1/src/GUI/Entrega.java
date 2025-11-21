@@ -1,4 +1,5 @@
 package GUI;
+
 import javax.swing.*;
 import java.awt.*;
 import Controlador.ControladorMotorizado;
@@ -7,142 +8,212 @@ import Controlador.CartasInsuficientes;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Entrega extends JFrame {
-	 private static final long serialVersionUID = 1L;
-	    private JTextField txtDni;
-	    private JTextField txtCantidad;
-	    private JSpinner spinnerFecha;
-	    private JButton btnRegistrar, btnCancelar;
-	    private ControladorMotorizado controlador;
-	    
 
-	    public Entrega(ControladorMotorizado controlador, String prefillDni) {
-	        this.controlador = controlador;
-	        setTitle("Registrar Entrega");
-	        setSize(380, 220);
-	        setLocationRelativeTo(null);
-	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	        getContentPane().setLayout(null);
+    private static final long serialVersionUID = 1L;
 
-	        JLabel lblDni = new JLabel("DNI:");
-	        lblDni.setBounds(20, 15, 120, 25);
-	        getContentPane().add(lblDni);
-	        txtDni = new JTextField(prefillDni != null ? prefillDni : "");
-	        txtDni.setEditable(false);
-	        txtDni.setBounds(140, 15, 200, 25);
-	        getContentPane().add(txtDni);
 
-	        JLabel lblCantidad = new JLabel("Cantidad entregada:");
-	        lblCantidad.setBounds(20, 50, 120, 25);
-	        getContentPane().add(lblCantidad);
-	        txtCantidad = new JTextField();
-	        txtCantidad.setBounds(140, 50, 200, 25);
-	        getContentPane().add(txtCantidad);
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color PROSEGUR_BLACK = new Color(25, 25, 25);
+    private static final Color PROSEGUR_GRAY = new Color(240, 240, 240);
 
-	        JLabel lblFecha = new JLabel("Fecha (YYYY-MM-DD):");
-	        lblFecha.setBounds(20, 85, 150, 25);
-	        getContentPane().add(lblFecha);
-	        SpinnerDateModel modelDate = new SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.DAY_OF_MONTH);
-	        spinnerFecha = new JSpinner(modelDate);
-	        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFecha, "yyyy-MM-dd");
-	        spinnerFecha.setEditor(editor);
-	        spinnerFecha.setBounds(140, 85, 200, 25);
-	        getContentPane().add(spinnerFecha);
+    private JTextField txtDni;
+    private JTextField txtCantidad;
+    private JSpinner spinnerFecha;
+    private JButton btnRegistrar, btnCancelar;
 
-	        btnRegistrar = new JButton("Registrar");
-	        btnRegistrar.setBounds(60, 130, 120, 28);
-	        getContentPane().add(btnRegistrar);
+    private ControladorMotorizado controlador;
+    private MainMenu parent;
 
-	        btnCancelar = new JButton("Cancelar");
-	        btnCancelar.setBounds(200, 130, 120, 28);
-	        getContentPane().add(btnCancelar);
+    
+    public Entrega(MainMenu parent, ControladorMotorizado controlador, String prefillDni) {
+        this.parent = parent;
+        this.controlador = controlador;
+        inicializarGUI(prefillDni);
+    }
 
-	        btnCancelar.addActionListener(e -> dispose());
 
-	      
-	        btnRegistrar.addActionListener(e -> {
-	            String dni = txtDni.getText().trim();
-	            String cantidadStr = txtCantidad.getText().trim();
-	            java.util.Date fechaUtil = (java.util.Date) spinnerFecha.getValue();
-	            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-	            String fechaStr = sdf.format(fechaUtil);
+    /**
+     * @wbp.parser.constructor
+     */
+    public Entrega(ControladorMotorizado controlador, String prefillDni) {
+        setAlwaysOnTop(true);
+        this.parent = null;
+        this.controlador = controlador;
+        inicializarGUI(prefillDni);
+    }
 
-	            int requestedCantidad;
-	            try {
-	                requestedCantidad = Integer.parseInt(cantidadStr);
-	                if (requestedCantidad <= 0) {
-	                    JOptionPane.showMessageDialog(this, "Cantidad debe ser mayor que 0.");
-	                    return;
-	                }
-	            } catch (NumberFormatException ex) {
-	                JOptionPane.showMessageDialog(this, "Cantidad inválida. Debe ser un número entero.");
-	                return;
-	            }
+   
+    private void inicializarGUI(String prefillDni) {
 
-	          
-	            List<Modelado.DetalleEntrega> detalles = new ArrayList<>();
-	            for (int i = 1; i <= requestedCantidad; i++) {
-	                // formulario para una tarjeta
-	                JTextField txtCliente = new JTextField();
-	                JTextField txtBanco = new JTextField();
-	                JTextField txtDireccion = new JTextField();
-	                JCheckBox chkConforme = new JCheckBox("Conforme");
+        setTitle("📦 Registrar Entrega");
+        setSize(406, 222);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-	                JPanel panelForm = new JPanel(new GridLayout(0, 1));
-	                panelForm.add(new JLabel("Tarjeta #" + i));
-	                panelForm.add(new JLabel("Nombre cliente:"));
-	                panelForm.add(txtCliente);
-	                panelForm.add(new JLabel("Banco:"));
-	                panelForm.add(txtBanco);
-	                panelForm.add(new JLabel("Dirección:"));
-	                panelForm.add(txtDireccion);
-	                panelForm.add(chkConforme);
+        getContentPane().setLayout(null);
+        getContentPane().setBackground(PROSEGUR_GRAY);
 
-	                int option = JOptionPane.showConfirmDialog(this, panelForm, "Detalles tarjeta " + i, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-	                if (option != JOptionPane.OK_OPTION) {
-	                    // usuario canceló el ingreso de detalles -> preguntamos si desea cancelar todo el proceso
-	                    int c = JOptionPane.showConfirmDialog(this, "¿Cancelar registro de todas las tarjetas?", "Confirmar", JOptionPane.YES_NO_OPTION);
-	                    if (c == JOptionPane.YES_OPTION) return; // salir sin registrar
-	                    else {
-	                        i--; // repetir esta tarjeta
-	                        continue;
-	                    }
-	                }
+        Font labelFont = new Font("Montserrat", Font.BOLD, 13);
 
-	                String cliente = txtCliente.getText().trim();
-	                String banco = txtBanco.getText().trim();
-	                String direccion = txtDireccion.getText().trim();
-	                boolean conforme = chkConforme.isSelected();
+        
+        JLabel lblDni = new JLabel("🪪 DNI:");
+        lblDni.setFont(labelFont);
+        lblDni.setForeground(PROSEGUR_BLACK);
+        lblDni.setBounds(20, 15, 130, 25);
+        getContentPane().add(lblDni);
 
-	                // Puedes validar campos mínimos, por ejemplo cliente no vacío
-	                if (cliente.isEmpty()) {
-	                    int resp = JOptionPane.showConfirmDialog(this, "Cliente vacío. ¿Desea volver a ingresar este detalle?", "Campo vacío", JOptionPane.YES_NO_OPTION);
-	                    if (resp == JOptionPane.YES_OPTION) {
-	                        i--; // repetir
-	                        continue;
-	                    }
-	                }
+        txtDni = new JTextField(prefillDni != null ? prefillDni : "");
+        txtDni.setEditable(false);
+        txtDni.setBounds(160, 15, 200, 25);
+        txtDni.setBackground(new Color(225, 225, 225));
+        getContentPane().add(txtDni);
 
-	                detalles.add(new Modelado.DetalleEntrega(cliente, banco, direccion, conforme));
-	            }
+       
+        JLabel lblCantidad = new JLabel("📦 Cantidad:");
+        lblCantidad.setFont(labelFont);
+        lblCantidad.setForeground(PROSEGUR_BLACK);
+        lblCantidad.setBounds(20, 51, 130, 25);
+        getContentPane().add(lblCantidad);
 
-	            // Ahora llamamos al controlador con la lista de detalles
-	            try {
-	                controlador.registrarEntrega(dni, requestedCantidad, fechaStr, detalles); // usa la nueva sobrecarga
-	                JOptionPane.showMessageDialog(this, "Entrega registrada correctamente (solo se contaron las conformes).");
-	                dispose();
-	            } catch (MotorizadoNoEncontrado ex) {
-	                JOptionPane.showMessageDialog(this, ex.getMessage());
-	            } catch (CartasInsuficientes ex) {
-	                JOptionPane.showMessageDialog(this, ex.getMessage());
-	            } catch (IllegalArgumentException ex) {
-	                JOptionPane.showMessageDialog(this, "No se registró: " + ex.getMessage());
-	            } catch (Exception ex) {
-	                ex.printStackTrace();
-	                JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
-	            }
-	        });
+        txtCantidad = new JTextField();
+        txtCantidad.setBounds(160, 50, 200, 25);
+        getContentPane().add(txtCantidad);
 
-	    }
+    
+        JLabel lblFecha = new JLabel("📅 Fecha:");
+        lblFecha.setFont(labelFont);
+        lblFecha.setForeground(PROSEGUR_BLACK);
+        lblFecha.setBounds(20, 87, 130, 25);
+        getContentPane().add(lblFecha);
+
+        SpinnerDateModel modelDate = new SpinnerDateModel(new java.util.Date(), null, null,
+                java.util.Calendar.DAY_OF_MONTH);
+        spinnerFecha = new JSpinner(modelDate);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFecha, "yyyy-MM-dd");
+        spinnerFecha.setEditor(editor);
+        spinnerFecha.setBounds(160, 85, 200, 25);
+        getContentPane().add(spinnerFecha);
+
+  
+        btnRegistrar = new JButton("✔ Registrar");
+        btnRegistrar.setBounds(60, 130, 120, 28);
+        styleButton(btnRegistrar, PROSEGUR_YELLOW, PROSEGUR_BLACK);
+        getContentPane().add(btnRegistrar);
+
+        btnCancelar = new JButton("✖ Cancelar");
+        btnCancelar.setBounds(200, 130, 120, 28);
+        styleButton(btnCancelar, PROSEGUR_BLACK, PROSEGUR_YELLOW);
+        getContentPane().add(btnCancelar);
+
+ 
+        btnCancelar.addActionListener(e -> dispose());
+        btnRegistrar.addActionListener(e -> registrarEntrega());
+
+    
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                if (parent != null) parent.refrescarDashboard();
+            }
+        });
+    }
+
+
+    private void styleButton(JButton btn, Color bg, Color fg) {
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createLineBorder(PROSEGUR_BLACK));
+    }
+
+
+    private void registrarEntrega() {
+
+        String dni = txtDni.getText().trim();
+        String cantidadStr = txtCantidad.getText().trim();
+
+        java.util.Date fechaUtil = (java.util.Date) spinnerFecha.getValue();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String fechaStr = sdf.format(fechaUtil);
+
+        int requestedCantidad;
+        try {
+            requestedCantidad = Integer.parseInt(cantidadStr);
+            if (requestedCantidad <= 0) {
+                JOptionPane.showMessageDialog(this, "⚠ La cantidad debe ser mayor que 0.");
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "⚠ Cantidad inválida (solo números).");
+            return;
+        }
+
+      
+        List<Modelado.DetalleEntrega> detalles = new ArrayList<>();
+
+        for (int i = 1; i <= requestedCantidad; i++) {
+
+            JTextField txtCliente = new JTextField();
+            JTextField txtBanco = new JTextField();
+            JTextField txtDireccion = new JTextField();
+            JCheckBox chkConforme = new JCheckBox("✔ Conforme");
+
+            JPanel panelForm = new JPanel(new GridLayout(0, 1));
+            panelForm.add(new JLabel("📦 Tarjeta #" + i));
+            panelForm.add(new JLabel("👤 Cliente:"));
+            panelForm.add(txtCliente);
+            panelForm.add(new JLabel("🏦 Banco:"));
+            panelForm.add(txtBanco);
+            panelForm.add(new JLabel("📍 Dirección:"));
+            panelForm.add(txtDireccion);
+            panelForm.add(chkConforme);
+
+            int option = JOptionPane.showConfirmDialog(
+                    this,
+                    panelForm,
+                    "Detalles de la tarjeta " + i,
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (option != JOptionPane.OK_OPTION) {
+                int c = JOptionPane.showConfirmDialog(
+                        this,
+                        "¿Cancelar el registro completo?",
+                        "Confirmar",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (c == JOptionPane.YES_OPTION) return;
+                else {
+                    i--;
+                    continue;
+                }
+            }
+
+            detalles.add(new Modelado.DetalleEntrega(
+                    txtCliente.getText().trim(),
+                    txtBanco.getText().trim(),
+                    txtDireccion.getText().trim(),
+                    chkConforme.isSelected()
+            ));
+        }
+
+
+        try {
+            controlador.registrarEntrega(dni, requestedCantidad, fechaStr, detalles);
+            JOptionPane.showMessageDialog(this, "✔ Entrega registrada correctamente.");
+            dispose();
+
+        } catch (MotorizadoNoEncontrado | CartasInsuficientes ex) {
+
+            JOptionPane.showMessageDialog(this, "⚠ " + ex.getMessage());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "❌ Error inesperado: " + ex.getMessage());
+        }
+    }
 }

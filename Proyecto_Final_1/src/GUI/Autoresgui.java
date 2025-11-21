@@ -12,7 +12,7 @@ public class Autoresgui extends JDialog {
 
     public Autoresgui(JFrame parent) {
 
-        super(parent, "Autores del Proyecto", true); // ← TRUE = MODAL
+        super(parent, "Autores del Proyecto", true); 
         setSize(600, 420);
         setLocationRelativeTo(parent);
         setResizable(false);
@@ -27,17 +27,44 @@ public class Autoresgui extends JDialog {
         titulo.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
         content.add(titulo, BorderLayout.NORTH);
 
-        // Tabs para autores
-        JTabbedPane tabs = new JTabbedPane();
+         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(new Font("Montserrat", Font.BOLD, 14));
 
-        tabs.addTab("Joaquín",
-                crearPanelAutor("Joaquín Herrera",
-                	    "Ingeniería de Sistemas",
-                	    "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\joaquin.jpg"));
+       
+        tabs.addTab("Joaquin",
+                crearPanelAutor(
+                        "Joaquin Herrera",
+                        "Líder del proyecto",
+                        "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\joaquin.jpg"
+                )
+        );
 
-        tabs.addTab("Integrante 2",
-                crearPanelAutor("Autor 2", "Desarrollador Backend", "images/autor2.jpg"));
+     
+        tabs.addTab("Fabrizio",
+                crearPanelAutor(
+                        "Fabrizio Arévalo",
+                        "Ingeniero de Sistemas",
+                        "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante2.jpg"
+                )
+        );
+
+       
+        tabs.addTab("Gabriela",
+                crearPanelAutor(
+                        "Gabriela Lopez",
+                        "Ingeniera de Sistemas",
+                        "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante3.jpg"
+                )
+        );
+
+        
+        tabs.addTab("Haggy",
+                crearPanelAutor(
+                        "Haggy Roque",
+                        "Ingeniero de Sistemas",
+                        "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante4.jpg"
+                )
+        );
 
         content.add(tabs, BorderLayout.CENTER);
     }

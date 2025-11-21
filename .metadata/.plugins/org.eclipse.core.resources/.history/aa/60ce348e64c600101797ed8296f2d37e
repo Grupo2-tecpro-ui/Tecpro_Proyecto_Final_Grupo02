@@ -1,0 +1,67 @@
+package GUI;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+import Controlador.ControladorMotorizado;
+import Modelado.Motorizado;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class ListadoMotorizadoFrame extends JDialog implements ActionListener {
+
+    // =================== NUEVOS COLORES ===================
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color PROSEGUR_BLACK  = new Color(25, 25, 25);
+    private static final Color PROSEGUR_GRAY   = new Color(230, 230, 230);
+
+    private ControladorMotorizado controlador;
+    private DefaultTableModel modeloTabla;
+    private JTable tabla;
+    private JTextField txtBuscarDni;
+    private JTextField txtdni;
+    private JButton btnElimianr;
+    private JButton btnEditarMotorizado;
+    private JButton btnRegistrarEntrega;
+
+    public ListadoMotorizadoFrame(JFrame parent, ControladorMotorizado controlador) {
+
+        super(parent, "📋 Listado de Motorizados", false); // NO MODAL
+
+        this.controlador = controlador;
+
+        setSize(1082, 508);
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(null);
+
+        // ==================== PANEL SUPERIOR ====================
+        JPanel panelBusqueda = new JPanel();
+        panelBusqueda.setBounds(0, 0, 1056, 41);
+        panelBusqueda.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 8));
+
+        panelBusqueda.setBackground(PROSEGUR_BLACK);
+
+        // -------- BOTÓN REGISTRAR ENTREGA --------
+        btnRegistrarEntrega = new JButton("🚚 Registrar Entrega");
+        styleButton(btnRegistrarEntrega);
+
+        JLabel lblBuscar = new JLabel("🔎 Buscar DNI:");
+        lblBuscar.setForeground(PROSEGUR_YELLOW);
+
+        txtBuscarDni = new JTextField(10);
+
+        JButton btnBuscar = new JButton("Buscar");
+        styleButton(btnBuscar);
+
+        JButton btnMostrarTodos = new JButton("📄 Mostrar Todos");
+        styleButton(btnMostrarTodos);
+
+        JLabel lblEliminarPorDni = new JLabel("🗑️ Eliminar DNI:");
+        lblEliminarPorDni.setForeground(PROSEGUR_YELLOW);
+
+        txtdni = new JTextField(10);
+
+        btnElimianr = new JButton("Eliminar");
+        styleButton(btnElimianr);
