@@ -16,6 +16,8 @@ public class LoginGUI extends JFrame {
     private JPasswordField txtPassword;
     private JButton btnLogin;
 
+    private int intentos = 0;
+    
     public LoginGUI() {
 
     
@@ -121,21 +123,34 @@ public class LoginGUI extends JFrame {
 
         
         btnLogin.addActionListener(e -> {
-            String usuario = txtUsuario.getText().trim();
+        	String usuario = txtUsuario.getText().trim();
             String contrasena = new String(txtPassword.getPassword()).trim();
 
             if (usuario.equals("admin") && contrasena.equals("admin")) {
                 dispose();
                 new MainMenu().setVisible(true);
             } else {
+                intentos++;
+
                 JOptionPane.showMessageDialog(
-                        this, 
-                        "Usuario o contraseña incorrectos", 
-                        "Error", 
+                        this,
+                        "Usuario o contraseña incorrectos\nIntentos: " + intentos + " de 3",
+                        "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
+
                 txtPassword.setText("");
                 txtUsuario.requestFocus();
+
+                if (intentos >= 3) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Has superado el número máximo de intentos.\nEl programa se cerrará.",
+                            "Acceso denegado",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    System.exit(0);
+                }
             }
         });
     }

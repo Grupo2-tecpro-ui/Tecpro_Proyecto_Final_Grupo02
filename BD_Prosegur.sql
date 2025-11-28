@@ -188,6 +188,7 @@ DELIMITER ;
 SELECT * FROM motorizado
 SELECT * FROM entrega
 SELECT * FROM detalle_entrega
+SELECT * FROM motorizado_sede
 
 ALTER TABLE entrega
 DROP FOREIGN KEY fk_entrega_motorizado;
@@ -197,3 +198,31 @@ ADD CONSTRAINT fk_entrega_motorizado
 FOREIGN KEY (dniMotorizado) REFERENCES motorizado(dni)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
+
+ALTER TABLE motorizado
+DROP FOREIGN KEY fk_sede;
+
+ALTER TABLE motorizado
+DROP COLUMN idSede;
+
+CREATE TABLE motorizado_sede (
+    idMotorizado INT NOT NULL,
+    idSede INT NOT NULL,
+    fechaAsignacion DATE NOT NULL,
+    
+    PRIMARY KEY (idMotorizado, idSede),
+
+    CONSTRAINT fk_ms_motorizado
+        FOREIGN KEY (idMotorizado) REFERENCES motorizado(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_ms_sede
+        FOREIGN KEY (idSede) REFERENCES sede(idSede)
+        ON DELETE CASCADE
+);
+ALTER TABLE motorizado
+ADD COLUMN idSede INT;
+
+ALTER TABLE motorizado
+ADD CONSTRAINT fk_sede
+    FOREIGN KEY (idSede) REFERENCES sede(idSede);

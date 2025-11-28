@@ -64,6 +64,7 @@ public class ListadoMotorizadoFrame extends JDialog implements ActionListener {
         txtdni = new JTextField(10);
 
         btnElimianr = new JButton("Eliminar");
+        btnElimianr.setEnabled(false);
         styleButton(btnElimianr);
         btnElimianr.addActionListener(this);
 

@@ -5,6 +5,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -101,7 +104,7 @@ public class MainMenu extends JFrame {
         sidebar.add(createSidebarButton("Reporte de Entregas 📝", e -> abrirReporte()));
         sidebar.add(createSidebarButton("Historial de Entregas 💻", e -> abrirHistorial()));
         sidebar.add(createSidebarButton("Exportar CSV 📉", e -> exportarCSV()));
-        sidebar.add(createSidebarButton("Importar CSV 📊", e -> importarCSV()));
+        sidebar.add(createSidebarButton("Genera PDF 📊", e -> generarReportePDF()));
         sidebar.add(createSidebarButton("Backup 💾", e -> backupArchivos()));
 
         mainContainer.add(sidebar, BorderLayout.WEST);
@@ -220,17 +223,31 @@ public class MainMenu extends JFrame {
 
    
     private void exportarCSV() {
-        try {
-            Path pMot = Paths.get("data", "motorizados.csv");
-            FileManager.exportarMotorizadosCSV(InMemoryDatabase.getMotorizados(), pMot);
+    	 try {
 
-            Path pEnt = Paths.get("data", "entregas.csv");
-            FileManager.exportarEntregasCSV(InMemoryDatabase.getEntregas(), pEnt);
+    	  
+    	        List<Modelado.Motorizado> motorizados = controlador.listarMotorizados();
+    	        List<Modelado.Entrega> entregas = controlador.listarEntregasBD();
 
-            JOptionPane.showMessageDialog(this, "Exportado a carpeta data/ correctamente.");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al exportar: " + ex.getMessage());
-        }
+    	   
+    	        Path pMot = Paths.get("data", "motorizados.csv");
+    	        Path pEnt = Paths.get("data", "entregas.csv");
+
+    	    
+    	        FileManager.exportarMotorizadosCSV(motorizados, pMot);
+    	        FileManager.exportarEntregasCSV(entregas, pEnt);
+
+    	        JOptionPane.showMessageDialog(this,
+    	                "CSV exportado correctamente a /data/",
+    	                "Exportación exitosa",
+    	                JOptionPane.INFORMATION_MESSAGE);
+
+    	    } catch (Exception ex) {
+    	        JOptionPane.showMessageDialog(this,
+    	                "Error al exportar CSV:\n" + ex.getMessage(),
+    	                "Error",
+    	                JOptionPane.ERROR_MESSAGE);
+    	    }
     }
 
     private void importarCSV() {
@@ -261,16 +278,57 @@ public class MainMenu extends JFrame {
     }
 
     private void backupArchivos() {
-        try {
-            Path src = Paths.get("data", "motorizados.csv");
-            Path dest = Paths.get("data", "backup",
-                    "motorizados_backup_" + System.currentTimeMillis() + ".csv");
+    	 try {
 
-            FileManager.backupFile(src, dest);
-            JOptionPane.showMessageDialog(this, "Backup creado:\n" + dest.toString());
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al crear backup: " + ex.getMessage());
-        }
+    	        String dbName = "prosegur";
+    	        String user = "root";
+    	        String pass = "03458969"; // tu clave actual
+
+    	        String fecha = java.time.LocalDateTime.now()
+    	                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
+
+    	        Path carpeta = Paths.get("data", "backup");
+    	        Files.createDirectories(carpeta);
+
+    	        Path archivoBackup = carpeta.resolve("backup_prosegur_" + fecha + ".sql");
+
+    	        // COMANDO MYSQLDUMP
+    	        String comando = String.format(
+    	                "mysqldump -u%s -p%s %s",
+    	                user, pass, dbName
+    	        );
+
+    	        ProcessBuilder pb = new ProcessBuilder(
+    	        	    "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe",
+    	        	    "-u" + user,
+    	        	    "-p" + pass,
+    	        	    dbName
+    	        	);
+    	        pb.redirectOutput(archivoBackup.toFile());
+    	        pb.redirectErrorStream(true);
+
+    	        Process p = pb.start();
+    	        int resultado = p.waitFor();
+
+    	        if (resultado == 0) {
+    	            JOptionPane.showMessageDialog(this,
+    	                    "Backup generado exitosamente:\n" + archivoBackup.toAbsolutePath(),
+    	                    "Backup OK",
+    	                    JOptionPane.INFORMATION_MESSAGE);
+
+    	        } else {
+    	            JOptionPane.showMessageDialog(this,
+    	                    "Error generando backup. Código: " + resultado,
+    	                    "Error",
+    	                    JOptionPane.ERROR_MESSAGE);
+    	        }
+
+    	    } catch (Exception ex) {
+    	        JOptionPane.showMessageDialog(this,
+    	                "Error al crear backup:\n" + ex.getMessage(),
+    	                "Error",
+    	                JOptionPane.ERROR_MESSAGE);
+    	    }
     }
 
  
@@ -464,6 +522,96 @@ public class MainMenu extends JFrame {
             repaint();
         }
     }
+    private void generarReportePDF() {
+        try {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Seleccione carpeta donde guardar el reporte");
+
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+
+            File carpeta = chooser.getSelectedFile();
+            File archivo = new File(carpeta, "reporte_motorizados.html");
+
+            // Obtener datos desde BD
+            List<Motorizado> motos = controlador.listarMotorizados();
+            List<Entrega> entregas = controlador.listarEntregasBD();
+
+            // Construimos el HTML
+            StringBuilder html = new StringBuilder();
+            html.append("<html><head>");
+            html.append("<meta charset='UTF-8'>");
+            html.append("<style>");
+            html.append("body{font-family:Arial;background:#f2f2f2;padding:20px;}");
+            html.append(".card{background:white;padding:20px;margin-bottom:25px;border-radius:8px;}");
+            html.append("h1{color:#ffcc00;text-align:center;}");
+            html.append("table{width:100%;border-collapse:collapse;margin-top:10px;}");
+            html.append("th,td{border:1px solid #999;padding:8px;text-align:left;}");
+            html.append("th{background:#333;color:#ffcc00;}");
+            html.append("</style>");
+            html.append("</head><body>");
+
+            html.append("<h1>Reporte de Motorizados y Entregas</h1>");
+
+            for (Motorizado m : motos) {
+                html.append("<div class='card'>");
+
+                html.append("<h2>").append(m.getNombres()).append(" ").append(m.getApellidos()).append("</h2>");
+                html.append("<p><b>DNI:</b> ").append(m.getDni()).append("</p>");
+                html.append("<p><b>Celular:</b> ").append(m.getCelular()).append("</p>");
+                html.append("<p><b>Placa:</b> ").append(m.getPlaca()).append("</p>");
+                html.append("<p><b>Tarjetas asignadas:</b> ").append(m.getTarjetasAsignadas()).append("</p>");
+                html.append("<p><b>Fecha Ruta:</b> ").append(m.getFechaTarjetas()).append("</p>");
+
+                // Filtrar entregas por motorizado
+                html.append("<h3>Entregas:</h3>");
+                html.append("<table>");
+                html.append("<tr><th>Fecha</th><th>Cantidad</th><th>Cliente</th><th>Banco</th><th>Dirección</th><th>Conforme</th></tr>");
+
+                for (Entrega e : entregas) {
+                    if (!e.getDniMotorizado().equals(m.getDni())) continue;
+                    if (e.getDetalles() == null) continue;
+
+                    for (DetalleEntrega d : e.getDetalles()) {
+                        html.append("<tr>")
+                            .append("<td>").append(e.getFecha()).append("</td>")
+                            .append("<td>").append(e.getCantidad()).append("</td>")
+                            .append("<td>").append(d.getCliente()).append("</td>")
+                            .append("<td>").append(d.getBanco()).append("</td>")
+                            .append("<td>").append(d.getDireccion()).append("</td>")
+                            .append("<td>").append(d.isConforme() ? "✔" : "✖").append("</td>")
+                            .append("</tr>");
+                    }
+                }
+
+                html.append("</table>");
+                html.append("</div>");
+            }
+
+            html.append("</body></html>");
+
+            // Guardar archivo
+            FileWriter writer = new FileWriter(archivo);
+            writer.write(html.toString());
+            writer.close();
+
+            // Abrir en el navegador
+            Desktop.getDesktop().browse(archivo.toURI());
+
+            JOptionPane.showMessageDialog(this,
+                "Reporte generado correctamente.\nUse CTRL+P → Guardar como PDF.",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al generar reporte: " + ex.getMessage());
+        }
+    }
+
 
    
     private static class BarChartPanel extends JPanel {

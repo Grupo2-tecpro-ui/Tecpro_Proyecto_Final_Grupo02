@@ -135,7 +135,7 @@ public class ControladorMotorizado {
 		    for (Entrega e : lista) {
 		        List<DetalleEntrega> det = detalleDAO.listarPorEntrega(e.getId());
 		        e.setDetalles(det); 
-		    }
+		    }	
 
 		    return lista;
 	}

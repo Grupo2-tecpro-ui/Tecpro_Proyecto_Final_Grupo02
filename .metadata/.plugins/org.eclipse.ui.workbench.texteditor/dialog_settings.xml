@@ -4,6 +4,9 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="back"/>
+			<item value="expor"/>
+			<item value="admin"/>
 			<item value="listar"/>
 			<item value="buscar"/>
 			<item value="conforme"/>
@@ -16,9 +19,6 @@
 			<item value="registrarDetalle"/>
 			<item value="registrarEntrega"/>
 			<item value="box"/>
-			<item value="gui"/>
-			<item value="registro"/>
-			<item value="autores"/>
 		</list>
 	</section>
 </section>
