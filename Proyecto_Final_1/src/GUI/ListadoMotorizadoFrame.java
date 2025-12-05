@@ -88,7 +88,7 @@ public class ListadoMotorizadoFrame extends JDialog implements ActionListener {
     
         String[] columnas = {
                 "ID", "DNI", "Nombres", "Apellidos", "Celular", "Placa",
-                "Estado", "Tarjetas en Ruta", "Fecha Tarjetas"
+                "Estado", "Tarjetas en Ruta", "Fecha Asignación"
         };
 
         modeloTabla = new DefaultTableModel(columnas, 0);
@@ -182,7 +182,7 @@ public class ListadoMotorizadoFrame extends JDialog implements ActionListener {
                     m.getPlaca(),
                     m.getEstado(),
                     m.getTarjetasAsignadas(),
-                    m.getFechaTarjetas()
+                    m.getFechaIngreso()
             });
         }
     }

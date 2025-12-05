@@ -12,9 +12,8 @@ import java.util.List;
 
 public class EntregaDAO {
 
-    // ---------------------------------------------------
-    // INSERTAR ENTREGA Y RETORNAR ID
-    // ---------------------------------------------------
+   
+   
     public int registrarEntregaRetornandoID(Entrega e) {
 
         String sql = "INSERT INTO entrega(dniMotorizado, cantidad, requestedCantidad, fecha) VALUES (?,?,?,?)";
@@ -39,9 +38,7 @@ public class EntregaDAO {
         return -1;
     }
 
-    // ---------------------------------------------------
-    // INSERTAR DETALLE
-    // ---------------------------------------------------
+
     public boolean registrarDetalleEntrega(int idEntrega, DetalleEntrega det) {
         String sql = "INSERT INTO detalle_entrega(idEntrega, cliente, banco, direccion, conforme) VALUES (?,?,?,?,?)";
 
@@ -62,9 +59,7 @@ public class EntregaDAO {
         }
     }
 
-    // ---------------------------------------------------
-    // HISTORIAL DESDE LA VISTA
-    // ---------------------------------------------------
+
     public List<HistorialEntrega> obtenerHistorial() {
         List<HistorialEntrega> lista = new ArrayList<>();
         String sql = "SELECT * FROM vw_historial_entregas ORDER BY fecha DESC";
@@ -92,23 +87,23 @@ public class EntregaDAO {
         return lista;
     }
 
-    // ---------------------------------------------------
-    // REPORTE
-    // ---------------------------------------------------
+  
     public List<ReporteEntrega> generarReporte() {
-        String sql = """
-                SELECT 
-                    m.dni,
-                    CONCAT(m.nombres, ' ', m.apellidos) AS nombres,
-                    m.tarjetasAsignadas + COALESCE(SUM(e.cantidad), 0) AS inicial,
-                    COALESCE(SUM(e.cantidad), 0) AS entregado,
-                    m.tarjetasAsignadas AS restante,
-                    (COALESCE(SUM(e.cantidad), 0) / 
-                        NULLIF(m.tarjetasAsignadas + COALESCE(SUM(e.cantidad), 0), 0)) * 100 AS porcentaje
-                FROM motorizado m
-                LEFT JOIN entrega e ON m.dni = e.dniMotorizado
-                GROUP BY m.dni;
-                """;
+    	String sql = """
+    		    SELECT 
+    		        m.dni,
+    		        CONCAT(m.nombres, ' ', m.apellidos) AS nombres,
+    		        ms.tarjetasAsignadasDia AS inicial,
+    		        COALESCE(SUM(e.cantidad), 0) AS entregado,
+    		        (ms.tarjetasAsignadasDia - COALESCE(SUM(e.cantidad), 0)) AS restante,
+    		        (COALESCE(SUM(e.cantidad), 0) / NULLIF(ms.tarjetasAsignadasDia, 0)) * 100 AS porcentaje
+    		    FROM motorizado m
+    		    JOIN motorizado_sede ms ON ms.idMotorizado = m.id
+    		    LEFT JOIN entrega e ON m.dni = e.dniMotorizado 
+    		                       AND e.fecha = CURDATE()
+    		    WHERE ms.fechaAsignacion = CURDATE()
+    		    GROUP BY m.dni, ms.tarjetasAsignadasDia;
+    		""";
 
         List<ReporteEntrega> lista = new ArrayList<>();
 
@@ -133,7 +128,9 @@ public class EntregaDAO {
 
         return lista;
     }
-    public List<Entrega> listarTodas() {
+
+
+       public List<Entrega> listarTodas() {
         List<Entrega> lista = new ArrayList<>();
         String sql = "SELECT * FROM entrega";
 

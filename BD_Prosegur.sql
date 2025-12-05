@@ -226,3 +226,72 @@ ADD COLUMN idSede INT;
 ALTER TABLE motorizado
 ADD CONSTRAINT fk_sede
     FOREIGN KEY (idSede) REFERENCES sede(idSede);
+
+UPDATE motorizado SET nombres = '' WHERE nombres IS NULL AND id > 0;
+UPDATE motorizado SET apellidos = '' WHERE apellidos IS NULL AND id > 0;
+UPDATE motorizado SET celular = '' WHERE celular IS NULL AND id > 0;
+UPDATE motorizado SET placa = '' WHERE placa IS NULL AND id > 0;
+UPDATE motorizado SET marca = '' WHERE marca IS NULL AND id > 0;
+UPDATE motorizado SET modelo = '' WHERE modelo IS NULL AND id > 0;
+UPDATE motorizado SET brevete = '' WHERE brevete IS NULL AND id > 0;
+UPDATE motorizado SET vencBrevete = '2000-01-01' WHERE vencBrevete IS NULL AND id > 0;
+UPDATE motorizado SET soat = 0 WHERE soat IS NULL AND id > 0;
+UPDATE motorizado SET estado = 'Inactivo' WHERE estado IS NULL AND id > 0;
+UPDATE motorizado SET fechaIngreso = '2000-01-01' WHERE fechaIngreso IS NULL AND id > 0;
+UPDATE motorizado SET contrato = 'No asignado' WHERE contrato IS NULL AND id > 0;
+UPDATE motorizado SET fechaTarjetas = '2000-01-01' WHERE fechaTarjetas IS NULL AND id > 0;
+UPDATE motorizado SET idSede = 1 WHERE idSede IS NULL AND id > 0;
+
+ALTER TABLE motorizado MODIFY nombres VARCHAR(80) NOT NULL;
+ALTER TABLE motorizado MODIFY apellidos VARCHAR(80) NOT NULL;
+ALTER TABLE motorizado MODIFY celular VARCHAR(20) NOT NULL;
+ALTER TABLE motorizado MODIFY placa VARCHAR(20) NOT NULL;
+ALTER TABLE motorizado MODIFY marca VARCHAR(40) NOT NULL;
+ALTER TABLE motorizado MODIFY modelo VARCHAR(40) NOT NULL;
+ALTER TABLE motorizado MODIFY brevete VARCHAR(10) NOT NULL;
+ALTER TABLE motorizado MODIFY vencBrevete DATE NOT NULL;
+ALTER TABLE motorizado MODIFY soat BOOLEAN NOT NULL;
+ALTER TABLE motorizado MODIFY estado VARCHAR(20) NOT NULL;
+ALTER TABLE motorizado MODIFY fechaIngreso DATE NOT NULL;
+ALTER TABLE motorizado MODIFY contrato VARCHAR(40) NOT NULL;
+ALTER TABLE motorizado MODIFY tarjetasAsignadas INT NOT NULL;
+ALTER TABLE motorizado MODIFY diaRuta BOOLEAN NOT NULL;
+ALTER TABLE motorizado MODIFY fechaTarjetas DATE NOT NULL;
+ALTER TABLE motorizado MODIFY idSede INT NOT NULL;
+
+ALTER TABLE motorizado 
+ADD CONSTRAINT uq_placa UNIQUE (placa);
+
+ALTER TABLE motorizado 
+ADD CONSTRAINT uq_celular UNIQUE (celular);
+
+ALTER TABLE motorizado
+ADD CONSTRAINT chk_estado
+CHECK (estado IN ('Activo','Inactivo'));
+
+ALTER TABLE motorizado
+ADD CONSTRAINT chk_contrato
+CHECK (contrato IN ('Express','Tiempo completo','Medio tiempo'));
+
+SELECT * FROM motorizado_sede;
+
+
+ALTER TABLE motorizado_sede DROP FOREIGN KEY fk_ms_motorizado;
+ALTER TABLE motorizado_sede DROP FOREIGN KEY fk_ms_sede;
+ALTER TABLE motorizado_sede DROP PRIMARY KEY;
+ALTER TABLE motorizado_sede
+ADD PRIMARY KEY (idMotorizado, fechaAsignacion);
+ALTER TABLE motorizado_sede
+ADD CONSTRAINT fk_ms_motorizado
+FOREIGN KEY (idMotorizado) REFERENCES motorizado(id)
+ON DELETE CASCADE;
+ALTER TABLE motorizado_sede
+ADD CONSTRAINT fk_ms_sede
+FOREIGN KEY (idSede) REFERENCES sede(idSede)
+ON DELETE CASCADE;
+
+
+ALTER TABLE motorizado_sede
+ADD COLUMN tarjetasAsignadasDia INT NOT NULL DEFAULT 0;
+
+

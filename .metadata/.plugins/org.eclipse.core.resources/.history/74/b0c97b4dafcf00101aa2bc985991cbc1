@@ -1,0 +1,25 @@
+package repositorio;
+
+public class MotorizadoSedeDTO {
+	private int idMotorizado;
+    private String dni;
+    private String nombreCompleto;
+    private String sede;
+    private String fecha;
+
+    public MotorizadoSedeDTO(int idMotorizado, String dni, String nombreCompleto,
+                             String sede, String fecha) {
+        this.idMotorizado = idMotorizado;
+        this.dni = dni;
+        this.nombreCompleto = nombreCompleto;
+        this.sede = sede;
+        this.fecha = fecha;
+    }
+
+    public int getIdMotorizado() { return idMotorizado; }
+    public String getDni() { return dni; }
+    public String getNombreCompleto() { return nombreCompleto; }
+    public String getSede() { return sede; }
+    public String getFecha() { return fecha; }
+
+}

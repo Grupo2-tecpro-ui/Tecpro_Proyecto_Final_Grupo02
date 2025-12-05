@@ -26,7 +26,7 @@ public class MainMenu extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // Paleta B - Corporate Platinum
+    
     private static final Color PROSEGUR_YELLOW    = new Color(255, 215, 40);
     private static final Color PROSEGUR_PLATINUM  = new Color(236, 236, 236);
     private static final Color PROSEGUR_BLACK     = new Color(15, 15, 15);
@@ -101,6 +101,7 @@ public class MainMenu extends JFrame {
         sidebar.add(createSidebarButton("Registrar Motorizado 🏍️", e -> abrirRegistroMotorizado()));
         sidebar.add(createSidebarButton("Listado de Motorizados 📋", e -> abrirListado()));
         sidebar.add(createSidebarButton("Registrar Entregas 🧾", e -> registrarEntregaDialog()));
+        sidebar.add(createSidebarButton("Asignar Ruta 🚦", e -> abrirAsignarRuta()));
         sidebar.add(createSidebarButton("Reporte de Entregas 📝", e -> abrirReporte()));
         sidebar.add(createSidebarButton("Historial de Entregas 💻", e -> abrirHistorial()));
         sidebar.add(createSidebarButton("Exportar CSV 📉", e -> exportarCSV()));
@@ -522,6 +523,17 @@ public class MainMenu extends JFrame {
             repaint();
         }
     }
+    private void abrirAsignarRuta() {
+        AsignarRutaFrame frm = new AsignarRutaFrame(this, controlador);
+        frm.setVisible(true);
+
+        frm.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                refrescarDashboard();
+            }
+        });
+    }
     private void generarReportePDF() {
         try {
             JFileChooser chooser = new JFileChooser();
@@ -593,12 +605,12 @@ public class MainMenu extends JFrame {
 
             html.append("</body></html>");
 
-            // Guardar archivo
+     
             FileWriter writer = new FileWriter(archivo);
             writer.write(html.toString());
             writer.close();
 
-            // Abrir en el navegador
+         
             Desktop.getDesktop().browse(archivo.toURI());
 
             JOptionPane.showMessageDialog(this,

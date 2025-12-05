@@ -1,0 +1,197 @@
+package Controlador;
+
+import repositorio.DetalleEntregaDAO;
+import repositorio.EntregaDAO;
+import repositorio.MotorizadoDAO;
+import repositorio.MotorizadoSedeDAO;
+import Modelado.Motorizado;
+import Modelado.Entrega;
+import Modelado.DetalleEntrega;
+import Modelado.ReporteEntrega;
+import Modelado.HistorialEntrega;
+
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import java.util.ArrayList;
+
+public class ControladorMotorizado {
+	
+	private MotorizadoDAO motorizadoDAO = new MotorizadoDAO();
+	private EntregaDAO entregaDAO = new EntregaDAO();
+	private DetalleEntregaDAO detalleDAO = new DetalleEntregaDAO();
+	private MotorizadoSedeDAO motorizadoSedeDAO = new MotorizadoSedeDAO();
+	// =======================================================
+	// GUARDAR MOTORIZADO
+	// =======================================================
+	public void guardarMotorizado(Motorizado m) {
+		boolean ok = motorizadoDAO.agregar(m);
+		if (ok) {
+			javax.swing.JOptionPane.showMessageDialog(null,
+				"Motorizado guardado en la base de datos:\n" +
+				"DNI: " + m.getDni() + "\n" +
+				"Nombres: " + m.getNombres() + "\n" +
+				"Apellidos: " + m.getApellidos()
+			);
+		} else {
+			javax.swing.JOptionPane.showMessageDialog(null,
+				"Error al guardar el motorizado en la BD.");
+		}
+	}
+
+	// =======================================================
+	// LISTAR
+	// =======================================================
+	public List<Motorizado> listarMotorizados() {
+		return motorizadoDAO.listarTodos();
+	}
+
+	// =======================================================
+	// ELIMINAR POR DNI
+	// =======================================================
+	public boolean eliminarPorDni(String dni) {
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.eliminarPorDni(dni.trim());
+	}
+
+	// =======================================================
+	// VALIDAR EXISTENCIA
+	// =======================================================
+	public boolean existeDni(String dni) {
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.existeDni(dni.trim());
+	}
+
+	// =======================================================
+	// EDITAR
+	// =======================================================
+	public boolean EditarporDNI(String dni, String nuevosNombres, String nuevosApellidos,
+			                   String nuevoCelular, int nuevasTarjetas, String nuevoEstado) 
+	{
+		if (dni == null || dni.trim().isEmpty()) return false;
+		return motorizadoDAO.editarPorDni(
+			dni.trim(),
+			nuevosNombres,
+			nuevosApellidos,
+			nuevoCelular,
+			nuevasTarjetas,
+			nuevoEstado
+		);
+	}
+
+	// =======================================================
+	// REGISTRAR ENTREGA (100% BD)
+	// =======================================================
+	public void registrarEntrega(String dni, int requestedCantidad, String fecha, List<DetalleEntrega> detalles)
+			throws MotorizadoNoEncontrado, CartasInsuficientes {
+
+		// 1️⃣ Buscar motorizado en BD
+		Motorizado m = motorizadoDAO.buscarPorDni(dni);
+		if (m == null)
+			throw new MotorizadoNoEncontrado("No existe motorizado con DNI " + dni);
+
+		// 2️⃣ Contar conformes
+		int aceptadas = 0;
+		for (DetalleEntrega d : detalles)
+			if (d.isConforme()) aceptadas++;
+
+		if (aceptadas <= 0)
+			throw new IllegalArgumentException("Debe registrar al menos 1 tarjeta conforme.");
+
+		// 3️⃣ Validar tarjetas BD
+		if (aceptadas > m.getTarjetasAsignadas())
+			throw new CartasInsuficientes("No hay suficientes tarjetas.");
+
+		// 4️⃣ Crear objeto entrega
+		Entrega e = new Entrega(0, dni, aceptadas, requestedCantidad, fecha, detalles);
+
+		// 5️⃣ Guardar entrega principal y obtener ID generado
+		int idEntrega = entregaDAO.registrarEntregaRetornandoID(e);
+
+		// 6️⃣ Registrar detalles
+		for (DetalleEntrega d : detalles) {
+			detalleDAO.registrarDetalle(d, idEntrega);
+		}
+
+		// 7️⃣ Actualizar tarjetas BD
+		motorizadoDAO.actualizarTarjetas(dni, m.getTarjetasAsignadas() - aceptadas);
+	}
+
+	// =======================================================
+	// REPORTE → 100% BD
+	// =======================================================
+	public List<ReporteEntrega> generarReporteEntregas() {
+		return entregaDAO.generarReporte();
+	}
+
+	// =======================================================
+	// HISTORIAL → 100% BD (Vista SQL)
+	// =======================================================
+	public List<HistorialEntrega> obtenerHistorialEntregas() {
+		return entregaDAO.obtenerHistorial();
+	}
+	public List<Entrega> listarEntregasBD() {
+		  List<Entrega> lista = entregaDAO.listarTodas(); // tu método actual de la tabla entrega
+
+		    // Ahora cargar detalles
+		    for (Entrega e : lista) {
+		        List<DetalleEntrega> det = detalleDAO.listarPorEntrega(e.getId());
+		        e.setDetalles(det); 
+		    }	
+
+		    return lista;
+	}
+	public Motorizado buscarPorDni(String dni) {
+	    return motorizadoDAO.buscarPorDni(dni);
+	}
+	public boolean existeCelular(String celular) {
+	    return motorizadoDAO.existeCelular(celular);
+	}
+
+	public boolean existePlaca(String placa) {
+	    return motorizadoDAO.existePlaca(placa);
+	}
+	public boolean asignarRuta(String dni, int idSede, int nuevasTarjetas, String fechaRuta)
+	        throws MotorizadoNoEncontrado {
+
+	    if (dni == null || dni.trim().isEmpty())
+	        throw new MotorizadoNoEncontrado("DNI vacío.");
+
+	    Motorizado m = motorizadoDAO.buscarPorDni(dni.trim());
+	    if (m == null)
+	        throw new MotorizadoNoEncontrado("No existe motorizado con DNI " + dni);
+
+	    // 1) Registrar/actualizar relación en motorizado_sede
+	    boolean okRel = motorizadoSedeDAO.asignarRuta(m.getId(), idSede, fechaRuta);
+
+	    // 2) Actualizar cantidad de tarjetas asignadas + fechaTarjetas en motorizado
+	    boolean okTarj = motorizadoDAO.actualizarTarjetasYFecha(dni.trim(), nuevasTarjetas, fechaRuta);
+
+	    return okRel && okTarj;
+	}
+	public boolean asignarRuta(String dni, int idSede, int tarjetas, String fecha)
+	        throws MotorizadoNoEncontrado {
+
+	    Motorizado m = motorizadoDAO.buscarPorDni(dni);
+	    if (m == null)
+	        throw new MotorizadoNoEncontrado("No existe motorizado con DNI " + dni);
+
+	    int idMotorizado = m.getId();
+
+	    // Validar si ya tiene ruta ese día
+	    if (motSedeDAO.yaTieneRutaEseDia(idMotorizado, fecha)) {
+	        JOptionPane.showMessageDialog(null,
+	            "❌ Este motorizado YA tiene ruta asignada en la fecha " + fecha);
+	        return false;
+	    }
+
+	    // Insertar asignación
+	    motSedeDAO.asignarRuta(idMotorizado, idSede, fecha);
+
+	    // Actualizar tarjetas asignadas
+	    motorizadoDAO.actualizarTarjetas(dni, tarjetas);
+
+	    return true;
+	}
+}

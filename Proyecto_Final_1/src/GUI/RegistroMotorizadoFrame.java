@@ -33,11 +33,11 @@ public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
 
     public RegistroMotorizadoFrame(JFrame parent, ControladorMotorizado controlador) {
 
-        super(parent, "Registro de Motorizado", false);  // ← YA NO ES MODAL
+        super(parent, "Registro de Motorizado", false);  
 
         this.controlador = controlador;
 
-        setSize(600, 730); 
+        setSize(500, 700); 
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -118,16 +118,10 @@ public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
         gbc.gridy++;
 
     
-        txtTarjetas = addRow(form, gbc, "📦 Tarjetas asignadas:", fontLabel);
-        txtTarjetas.setText("0");
+      
 
       
-        addLabel(form, gbc, "🚚 Fecha ruta:", fontLabel);
-        spinnerFechaTarjetas = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
-        spinnerFechaTarjetas.setEditor(new JSpinner.DateEditor(spinnerFechaTarjetas, "yyyy-MM-dd"));
-        form.add(spinnerFechaTarjetas, gbc);
-        gbc.gridy++;
-
+    
        
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttons.setBackground(BG_LIGHT);
@@ -195,59 +189,81 @@ public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
     
 
     private void guardar() {
+    	
+    
+        if (txtNombres.getText().trim().isEmpty() ||
+            txtApellidos.getText().trim().isEmpty() ||
+            txtCelular.getText().trim().isEmpty() ||
+            txtPlaca.getText().trim().isEmpty() ||
+            txtMarca.getText().trim().isEmpty() ||
+            txtModelo.getText().trim().isEmpty() ||
+            txtBrevete.getText().trim().isEmpty() ||
+            txtVencBrevete.getText().trim().isEmpty() ||
+            txtFechaIngreso.getText().trim().isEmpty()) {
+
+            JOptionPane.showMessageDialog(this, "⚠ Todos los campos son obligatorios.");
+            return;
+        }
+
         try {
             if (!chkSoat.isSelected()) {
-                JOptionPane.showMessageDialog(this, "No se puede registrar sin SOAT vigente.");
+                JOptionPane.showMessageDialog(this, "⚠ No se puede registrar sin SOAT vigente.");
                 return;
             }
 
             String dni = txtDni.getText().trim();
+
             if (!dni.matches("\\d{8}")) {
-                JOptionPane.showMessageDialog(this, "El DNI debe tener 8 dígitos.");
+                JOptionPane.showMessageDialog(this, "⚠ El DNI debe tener 8 dígitos.");
                 return;
             }
 
             if (controlador.existeDni(dni)) {
-                JOptionPane.showMessageDialog(this, "Este DNI ya está registrado.");
+                JOptionPane.showMessageDialog(this, "⚠ Este DNI ya está registrado.");
                 return;
             }
 
-            int tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
+            if (controlador.existeCelular(txtCelular.getText().trim())) {
+                JOptionPane.showMessageDialog(this, "⚠ El celular ya está registrado.");
+                return;
+            }
+
+            if (controlador.existePlaca(txtPlaca.getText().trim())) {
+                JOptionPane.showMessageDialog(this, "⚠ La placa ya está registrada.");
+                return;
+            }
 
             String sedeFull = (String) cboSede.getSelectedItem();
-            int idSede = Integer.parseInt(sedeFull.substring(0, 1));
-
-            java.util.Date fechaUtil = (java.util.Date) spinnerFechaTarjetas.getValue();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            String fechaRuta = sdf.format(fechaUtil);
+            Integer idSede = Integer.parseInt(sedeFull.substring(0, 1));
 
             Motorizado m = new Motorizado(
-                    0,
-                    dni,
-                    txtNombres.getText().trim(),
-                    txtApellidos.getText().trim(),
-                    txtCelular.getText().trim(),
-                    txtPlaca.getText().trim(),
-                    txtMarca.getText().trim(),
-                    txtModelo.getText().trim(),
-                    txtBrevete.getText().trim(),
-                    txtVencBrevete.getText().trim(),
-                    true,
-                    (String) cboEstado.getSelectedItem(),
-                    txtFechaIngreso.getText().trim(),
-                    (String) cboContrato.getSelectedItem(),
-                    tarjetas,
-                    false,
-                    fechaRuta,
-                    idSede
+                0,
+                dni,
+                txtNombres.getText().trim(),
+                txtApellidos.getText().trim(),
+                txtCelular.getText().trim(),
+                txtPlaca.getText().trim(),
+                txtMarca.getText().trim(),
+                txtModelo.getText().trim(),
+                txtBrevete.getText().trim(),
+                txtVencBrevete.getText().trim(),
+                true,
+                (String) cboEstado.getSelectedItem(),
+                txtFechaIngreso.getText().trim(),
+                (String) cboContrato.getSelectedItem(),
+                0,          
+                false,     
+                "2000-01-01", 
+                idSede
             );
 
             controlador.guardarMotorizado(m);
+
             limpiar();
-            JOptionPane.showMessageDialog(this, "Motorizado registrado correctamente.");
+            JOptionPane.showMessageDialog(this, "✔ Motorizado registrado correctamente.");
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "❌ Error: " + ex.getMessage());
         }
     }
 
@@ -266,7 +282,7 @@ public class RegistroMotorizadoFrame extends JDialog implements ActionListener {
         cboEstado.setSelectedIndex(0);
         cboContrato.setSelectedIndex(0);
         cboSede.setSelectedIndex(0);
-        txtTarjetas.setText("0");
+    
     }
 
     @Override

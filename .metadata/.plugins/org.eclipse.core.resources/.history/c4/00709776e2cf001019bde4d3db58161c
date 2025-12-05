@@ -1,0 +1,239 @@
+package GUI;
+
+import Controlador.ControladorMotorizado;
+import Controlador.MotorizadoNoEncontrado;
+import repositorio.MotorizadoSedeDAO;
+import repositorio.MotorizadoSedeDTO;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import java.awt.*;
+import java.util.Date;
+import java.util.List;
+
+public class AsignarRutaFrame extends JDialog {
+
+    private MotorizadoSedeDAO dao = new MotorizadoSedeDAO();
+
+    private static final Color PROSEGUR_YELLOW = new Color(255, 209, 0);
+    private static final Color PROSEGUR_BLACK  = new Color(25, 25, 25);
+    private static final Color BG_LIGHT        = new Color(245, 245, 245);
+
+    private JTextField txtDni;
+    private JComboBox<String> cboSede;
+    private JSpinner spinnerFecha;
+    private JTextField txtTarjetas;
+    private JButton btnAsignar;
+    private JButton btnCancelar;
+    private JTable tblAsignaciones;
+
+    private final ControladorMotorizado controlador;
+
+    public AsignarRutaFrame(JFrame parent, ControladorMotorizado controlador) {
+        super(parent, "🚦 Asignar Ruta a Motorizado", true);
+        this.controlador = controlador;
+
+        setSize(600, 500);
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(BG_LIGHT);
+        root.setBorder(new EmptyBorder(10, 15, 10, 15));
+        setContentPane(root);
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(PROSEGUR_YELLOW);
+        header.setBorder(new EmptyBorder(8, 10, 8, 10));
+
+        JLabel lblTitulo = new JLabel("🚦 Asignar Ruta", SwingConstants.LEFT);
+        lblTitulo.setFont(new Font("Montserrat", Font.BOLD, 18));
+        lblTitulo.setForeground(PROSEGUR_BLACK);
+
+        header.add(lblTitulo, BorderLayout.WEST);
+        root.add(header, BorderLayout.NORTH);
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBackground(Color.WHITE);
+        form.setBorder(new EmptyBorder(10, 10, 10, 10));
+        root.add(form, BorderLayout.NORTH);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        Font lblFont = new Font("Montserrat", Font.BOLD, 13);
+
+  
+        JLabel lblDni = new JLabel("🪪 DNI motorizado:");
+        lblDni.setFont(lblFont);
+        form.add(lblDni, gbc);
+
+        gbc.gridx = 1;
+        txtDni = new JTextField(12);
+        form.add(txtDni, gbc);
+
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        JLabel lblSede = new JLabel("📍 Sede:");
+        lblSede.setFont(lblFont);
+        form.add(lblSede, gbc);
+
+        gbc.gridx = 1;
+        cboSede = new JComboBox<>(new String[]{
+                "1 - Miraflores",
+                "2 - Surco",
+                "3 - Tambo Norte"
+        });
+        form.add(cboSede, gbc);
+
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        JLabel lblFecha = new JLabel("📆 Fecha ruta:");
+        lblFecha.setFont(lblFont);
+        form.add(lblFecha, gbc);
+
+        gbc.gridx = 1;
+        spinnerFecha = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinnerFecha, "yyyy-MM-dd");
+        spinnerFecha.setEditor(editor);
+
+        editor.getTextField().setEditable(false);
+
+        for (Component comp : spinnerFecha.getComponents()) {
+            comp.setVisible(false);
+        }
+
+        form.add(spinnerFecha, gbc);
+
+       
+        gbc.gridx = 0;
+        gbc.gridy++;
+        JLabel lblTarjetas = new JLabel("📦 Tarjetas asignadas:");
+        lblTarjetas.setFont(lblFont);
+        form.add(lblTarjetas, gbc);
+
+        gbc.gridx = 1;
+        txtTarjetas = new JTextField("0", 6);
+        form.add(txtTarjetas, gbc);
+
+ 
+        tblAsignaciones = new JTable();
+        tblAsignaciones.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"DNI", "Motorizado", "Sede", "Fecha", "Tarjetas día"}
+        ));
+
+        JScrollPane scroll = new JScrollPane(tblAsignaciones);
+        root.add(scroll, BorderLayout.CENTER);
+
+   
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        panelBotones.setBackground(BG_LIGHT);
+
+        btnAsignar = new JButton("💾 Asignar ruta");
+        btnCancelar = new JButton("❌ Cancelar");
+
+        stylizeButton(btnAsignar, PROSEGUR_YELLOW, PROSEGUR_BLACK);
+        stylizeButton(btnCancelar, PROSEGUR_BLACK, Color.WHITE);
+
+        panelBotones.add(btnAsignar);
+        panelBotones.add(btnCancelar);
+
+        root.add(panelBotones, BorderLayout.SOUTH);
+
+        btnCancelar.addActionListener(e -> dispose());
+        btnAsignar.addActionListener(e -> asignarRuta());
+
+        cargarTablaAsignaciones();
+    }
+
+    private void stylizeButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(new Font("Montserrat", Font.BOLD, 13));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+    }
+
+
+    private void cargarTablaAsignaciones() {
+
+        List<MotorizadoSedeDTO> lista = dao.listarAsignaciones();
+
+        DefaultTableModel model = (DefaultTableModel) tblAsignaciones.getModel();
+        model.setRowCount(0);
+
+        for (MotorizadoSedeDTO x : lista) {
+            model.addRow(new Object[]{
+                    x.getDni(),
+                    x.getNombreCompleto(),
+                    x.getSede(),
+                    x.getFecha(),
+                    x.getTarjetasDia()
+            });
+        }
+    }
+
+ 
+    private void asignarRuta() {
+
+        String dni = txtDni.getText().trim();
+
+        if (dni.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "⚠ Debe ingresar un DNI.");
+            txtDni.requestFocus();
+            return;
+        }
+
+        if (!dni.matches("\\d{8}")) {
+            JOptionPane.showMessageDialog(this, "⚠ El DNI debe tener 8 dígitos.");
+            txtDni.requestFocus();
+            return;
+        }
+
+        String sedeFull = (String) cboSede.getSelectedItem();
+        int idSede = Integer.parseInt(sedeFull.substring(0, 1));
+
+        int tarjetas;
+        try {
+            tarjetas = Integer.parseInt(txtTarjetas.getText().trim());
+            if (tarjetas < 0) {
+                JOptionPane.showMessageDialog(this, "⚠ Las tarjetas no pueden ser negativas.");
+                return;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "⚠ Cantidad de tarjetas inválida.");
+            return;
+        }
+
+        java.util.Date fechaUtil = (java.util.Date) spinnerFecha.getValue();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String fechaStr = sdf.format(fechaUtil);
+
+        try {
+            boolean ok = controlador.asignarRuta(dni, idSede, tarjetas, fechaStr);
+
+            if (ok) {
+                JOptionPane.showMessageDialog(this, "✔ Ruta asignada correctamente.");
+                cargarTablaAsignaciones();
+                txtDni.setText("");
+                txtTarjetas.setText("0");
+                txtDni.requestFocus();
+            } else {
+                JOptionPane.showMessageDialog(this, "❌ No se pudo asignar la ruta.");
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "❌ Error: " + ex.getMessage());
+        }
+    }
+}

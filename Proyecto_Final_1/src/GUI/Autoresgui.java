@@ -34,7 +34,7 @@ public class Autoresgui extends JDialog {
         tabs.addTab("Joaquin",
                 crearPanelAutor(
                         "Joaquin Herrera",
-                        "Líder del proyecto",
+                        "N00400790@upn.pe",
                         "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\joaquin.jpg"
                 )
         );
@@ -43,7 +43,7 @@ public class Autoresgui extends JDialog {
         tabs.addTab("Fabrizio",
                 crearPanelAutor(
                         "Fabrizio Arévalo",
-                        "Ingeniero de Sistemas",
+                        "N00386660@upn.pe",
                         "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante2.jpg"
                 )
         );
@@ -52,7 +52,7 @@ public class Autoresgui extends JDialog {
         tabs.addTab("Gabriela",
                 crearPanelAutor(
                         "Gabriela Lopez",
-                        "Ingeniera de Sistemas",
+                        "N00285884@upn.pe",
                         "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante3.jpg"
                 )
         );
@@ -61,7 +61,7 @@ public class Autoresgui extends JDialog {
         tabs.addTab("Haggy",
                 crearPanelAutor(
                         "Haggy Roque",
-                        "Ingeniero de Sistemas",
+                        "N00368147@upn.pe",
                         "C:\\Users\\USER\\Desktop\\Tecpro_Proyecto_Final_Grupo02\\Proyecto_Final_1\\src\\images\\integrante4.jpg"
                 )
         );

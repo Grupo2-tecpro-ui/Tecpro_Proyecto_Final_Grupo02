@@ -1,0 +1,14 @@
+package GUI;
+
+import Controlador.ControladorMotorizado;
+import Controlador.MotorizadoNoEncontrado;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.Date;
+
+public class AsignarRutaFrame extends JDialog {
+
+	
+}

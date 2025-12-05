@@ -1,0 +1,202 @@
+package repositorio;
+
+import Modelado.DetalleEntrega;
+import Modelado.Entrega;
+import Modelado.HistorialEntrega;
+import Modelado.ReporteEntrega;
+
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EntregaDAO {
+
+    // ---------------------------------------------------
+    // INSERTAR ENTREGA Y RETORNAR ID
+    // ---------------------------------------------------
+    public int registrarEntregaRetornandoID(Entrega e) {
+
+        String sql = "INSERT INTO entrega(dniMotorizado, cantidad, requestedCantidad, fecha) VALUES (?,?,?,?)";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, e.getDniMotorizado());
+            ps.setInt(2, e.getCantidad());
+            ps.setInt(3, e.getRequestedCantidad());
+            ps.setString(4, e.getFecha());
+
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    // ---------------------------------------------------
+    // INSERTAR DETALLE
+    // ---------------------------------------------------
+    public boolean registrarDetalleEntrega(int idEntrega, DetalleEntrega det) {
+        String sql = "INSERT INTO detalle_entrega(idEntrega, cliente, banco, direccion, conforme) VALUES (?,?,?,?,?)";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, idEntrega);
+            ps.setString(2, det.getCliente());
+            ps.setString(3, det.getBanco());
+            ps.setString(4, det.getDireccion());
+            ps.setBoolean(5, det.isConforme());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    // ---------------------------------------------------
+    // HISTORIAL DESDE LA VISTA
+    // ---------------------------------------------------
+    public List<HistorialEntrega> obtenerHistorial() {
+        List<HistorialEntrega> lista = new ArrayList<>();
+        String sql = "SELECT * FROM vw_historial_entregas ORDER BY fecha DESC";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new HistorialEntrega(
+                        rs.getString("fecha"),
+                        rs.getString("cliente"),
+                        rs.getString("direccion"),
+                        rs.getString("banco"),
+                        rs.getString("mensajeroNombre"),
+                        rs.getString("mensajeroDni"),
+                        rs.getBoolean("conforme")
+                ));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return lista;
+    }
+
+    // ---------------------------------------------------
+    // REPORTE
+    // ---------------------------------------------------
+    public List<ReporteEntrega> generarReporte() {
+        String sql = """
+                SELECT 
+                    m.dni,
+                    CONCAT(m.nombres, ' ', m.apellidos) AS nombres,
+                    m.tarjetasAsignadas AS inicial,
+                    COALESCE(SUM(e.cantidad), 0) AS entregado,
+                    m.tarjetasAsignadas - COALESCE(SUM(e.cantidad), 0) AS restante,
+                    (COALESCE(SUM(e.cantidad), 0) / NULLIF(m.tarjetasAsignadas, 0)) * 100 AS porcentaje
+                FROM motorizado m
+                LEFT JOIN entrega e 
+                    ON m.dni = e.dniMotorizado
+                    AND e.fecha = CURDATE()   -- 🔥 FILTRO DEL DÍA ACTUAL
+                GROUP BY m.dni;
+                """;
+
+        List<ReporteEntrega> lista = new ArrayList<>();
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new ReporteEntrega(
+                        rs.getString("dni"),
+                        rs.getString("nombres"),
+                        rs.getInt("inicial"),
+                        rs.getInt("entregado"),
+                        rs.getInt("restante"),
+                        rs.getDouble("porcentaje")
+                ));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return lista;
+    }
+    public List<Entrega> listarTodas() {
+        List<Entrega> lista = new ArrayList<>();
+        String sql = "SELECT * FROM entrega";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new Entrega(
+                        rs.getInt("id"),
+                        rs.getString("dniMotorizado"),
+                        rs.getInt("cantidad"),
+                        rs.getInt("requestedCantidad"),
+                        rs.getString("fecha"),
+                        null
+                ));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return lista;
+    }
+    public List<Entrega> listarPorDni(String dni) {
+    	 List<Entrega> lista = new ArrayList<>();
+    	    String sql = "SELECT * FROM entrega WHERE dniMotorizado = ?";
+
+    	    try (Connection con = Conexion.getConexion();
+    	         PreparedStatement pst = con.prepareStatement(sql)) {
+
+    	        pst.setString(1, dni);
+    	        ResultSet rs = pst.executeQuery();
+
+    	        while (rs.next()) {
+    	            Entrega e = new Entrega(
+    	                    rs.getInt("id"),                
+    	                    rs.getString("dniMotorizado"),
+    	                    rs.getInt("cantidad"),           
+    	                    rs.getInt("requestedCantidad"),  
+    	                    rs.getString("fecha"),
+    	                    null
+    	            );
+    	            lista.add(e);
+    	        }
+
+    	    } catch (Exception e) { e.printStackTrace(); }
+
+    	    return lista;
+    }
+    
+    public void eliminarEntrega(int idEntrega) {
+    	String sql = "DELETE FROM entrega WHERE id = ?";  
+
+        try (Connection con = Conexion.getConexion();
+             PreparedStatement pst = con.prepareStatement(sql)) {
+
+            pst.setInt(1, idEntrega);
+            pst.executeUpdate();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}

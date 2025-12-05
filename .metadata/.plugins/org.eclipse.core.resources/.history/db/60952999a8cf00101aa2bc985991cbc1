@@ -1,0 +1,36 @@
+package repositorio;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+public class MotorizadoSedeDAO {
+
+public boolean asignarRuta(int idMotorizado, int idSede, String fechaAsignacion) {
+        String sql = 
+            "INSERT INTO motorizado_sede(idMotorizado, idSede, fechaAsignacion) " +
+            "VALUES (?,?,?) " +
+            "ON DUPLICATE KEY UPDATE fechaAsignacion = VALUES(fechaAsignacion)";
+
+        try (Conexion cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, idMotorizado);
+            ps.setInt(2, idSede);
+            ps.setString(3, fechaAsignacion);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}

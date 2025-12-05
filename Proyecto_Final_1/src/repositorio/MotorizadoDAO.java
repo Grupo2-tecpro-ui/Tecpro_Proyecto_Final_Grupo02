@@ -9,9 +9,7 @@ import java.util.List;
 
 public class MotorizadoDAO {
 
-    // ---------------------------------------------------
-    // INSERTAR (usa el Stored Procedure)
-    // ---------------------------------------------------
+    
     public boolean insertar(Motorizado m) {
         String sql = "{CALL agregarMotorizado(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 
@@ -44,9 +42,7 @@ public class MotorizadoDAO {
         }
     }
 
-    // ---------------------------------------------------
-    // LISTAR
-    // ---------------------------------------------------
+ 
     public List<Motorizado> obtenerTodos() {
         String sql = "SELECT * FROM motorizado";
         List<Motorizado> lista = new ArrayList<>();
@@ -84,9 +80,7 @@ public class MotorizadoDAO {
         return lista;
     }
 
-    // ---------------------------------------------------
-    // EXISTE DNI
-    // ---------------------------------------------------
+    
     public boolean existeDni(String dni) {
         String sql = "SELECT dni FROM motorizado WHERE dni = ?";
 
@@ -104,28 +98,26 @@ public class MotorizadoDAO {
         }
     }
 
-    // ---------------------------------------------------
-    // ELIMINAR por DNI (SP)
-    // ---------------------------------------------------
+   
     public boolean eliminarPorDni(String dni) {
     	 try {
-    	        // 1. Obtener entregas del motorizado
+    	     
     	        EntregaDAO entregaDAO = new EntregaDAO();
     	        DetalleEntregaDAO detalleDAO = new DetalleEntregaDAO();
 
     	        List<Entrega> entregas = entregaDAO.listarPorDni(dni);
 
-    	        // 2. Borrar detalles de cada entrega
+    	      
     	        for (Entrega e : entregas) {
     	            detalleDAO.eliminarPorIdEntrega(e.getId());
     	        }
 
-    	        // 3. Borrar las entregas del motorizado
+    	        
     	        for (Entrega e : entregas) {
     	            entregaDAO.eliminarEntrega(e.getId());
     	        }
 
-    	        // 4. Borrar al motorizado
+    	       
     	        String sql = "DELETE FROM motorizado WHERE dni = ?";
     	        try (Connection con = Conexion.getConexion();
     	             PreparedStatement pst = con.prepareStatement(sql)) {
@@ -140,9 +132,7 @@ public class MotorizadoDAO {
     	    }
     }
 
-    // ---------------------------------------------------
-    // EDITAR (SP)
-    // ---------------------------------------------------
+    
     public boolean editarPorDni(String dni, String nombres, String apellidos,
                                 String celular, int tarjetas, String estado) {
         String sql = "{CALL editarMotorizadoPorDni(?,?,?,?,?,?)}";
@@ -165,9 +155,7 @@ public class MotorizadoDAO {
         }
     }
 
-    // ---------------------------------------------------
-    // TARJETAS DISPONIBLES
-    // ---------------------------------------------------
+ 
     public int obtenerTarjetas(String dni) {
         String sql = "SELECT tarjetasAsignadas FROM motorizado WHERE dni = ?";
 
@@ -185,9 +173,7 @@ public class MotorizadoDAO {
         return 0;
     }
 
-    // ---------------------------------------------------
-    // ACTUALIZAR TARJETAS
-    // ---------------------------------------------------
+
     public boolean actualizarTarjetas(String dni, int nuevasTarjetas) {
         String sql = "UPDATE motorizado SET tarjetasAsignadas = ? WHERE dni = ?";
 
@@ -242,9 +228,55 @@ public class MotorizadoDAO {
         return null;
     }
     public boolean agregar(Motorizado m) {
-        return insertar(m); // llama al SP existente
+        return insertar(m); 
     }
     public List<Motorizado> listarTodos() {
         return obtenerTodos();
     }
+    public boolean existeCelular(String celular) {
+        String sql = "SELECT celular FROM motorizado WHERE celular = ?";
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, celular);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    public boolean existePlaca(String placa) {
+        String sql = "SELECT placa FROM motorizado WHERE placa = ?";
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, placa);
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarTarjetasYFecha(String dni, int nuevasTarjetas, String fechaTarjetas) {
+        String sql = "UPDATE motorizado SET tarjetasAsignadas = ?, fechaTarjetas = ? WHERE dni = ?";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, nuevasTarjetas);
+            ps.setString(2, fechaTarjetas);
+            ps.setString(3, dni);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
 }

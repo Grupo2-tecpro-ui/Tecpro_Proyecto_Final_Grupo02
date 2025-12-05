@@ -5,7 +5,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import Controlador.ControladorMotorizado;
 import Modelado.ReporteEntrega;
 
@@ -35,8 +36,11 @@ public class ReporteEntregasFrame extends JDialog {
         JPanel panelTop = new JPanel(new BorderLayout());
         panelTop.setBackground(PROSEGUR_YELLOW);
         panelTop.setBorder(new EmptyBorder(10, 15, 10, 15));
-
-        JLabel titulo = new JLabel("📦 Reporte de Entregas por Motorizado");
+        
+        LocalDate hoy = LocalDate.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String textoTitulo = "📦 Reporte de Entregas por Motorizado a fecha de " + hoy.format(formato);
+        JLabel titulo = new JLabel(textoTitulo);
         titulo.setFont(new Font("Montserrat", Font.BOLD, 20));
         titulo.setForeground(PROSEGUR_BLACK);
 

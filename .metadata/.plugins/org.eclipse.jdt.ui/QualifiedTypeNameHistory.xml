@@ -13,17 +13,23 @@
     <fullyQualifiedTypeName name="javax.swing.border.CompoundBorder"/>
     <fullyQualifiedTypeName name="java.sql.SQLClientInfoException"/>
     <fullyQualifiedTypeName name="sun.jvm.hotspot.oops.java_lang_Class"/>
-    <fullyQualifiedTypeName name="java.sql.Connection"/>
-    <fullyQualifiedTypeName name="repositorio.Conexion"/>
     <fullyQualifiedTypeName name="repositorio.DetalleEntregaDAO"/>
     <fullyQualifiedTypeName name="repositorio.EntregaDAO"/>
     <fullyQualifiedTypeName name="Controlador.ControladorMotorizado"/>
     <fullyQualifiedTypeName name="Modelado.Motorizado"/>
     <fullyQualifiedTypeName name="repositorio.MotorizadoDAO"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="java.util.ArrayList"/>
     <fullyQualifiedTypeName name="Modelado.Entrega"/>
     <fullyQualifiedTypeName name="java.io.File"/>
     <fullyQualifiedTypeName name="java.nio.file.Files"/>
     <fullyQualifiedTypeName name="java.io.FileWriter"/>
+    <fullyQualifiedTypeName name="java.sql.Connection"/>
+    <fullyQualifiedTypeName name="repositorio.Conexion"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="java.sql.ResultSet"/>
+    <fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="repositorio.MotorizadoSedeDTO"/>
+    <fullyQualifiedTypeName name="javax.swing.table.DefaultTableModel"/>
+    <fullyQualifiedTypeName name="repositorio.MotorizadoSedeDAO"/>
+    <fullyQualifiedTypeName name="java.sql.SQLException"/>
 </qualifiedTypeNameHistroy>
